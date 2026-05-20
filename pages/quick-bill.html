@@ -1,0 +1,114 @@
+<section class="page" id="page-quick-bill">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title-main">Manual Bill Entry</div>
+            <div class="section-title-sub">Create and save quick bills without full product setup</div>
+          </div>
+          <button class="btn btn-ghost" onclick="resetQuickBillForm()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.63"/></svg>
+            Reset Form
+          </button>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+              <h3>Customer Information</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-row cols-3">
+              <div class="form-group">
+                <label>Customer Name</label>
+                <input class="form-control" id="qb-cust-name" placeholder="Optional — Walk-in customer">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input class="form-control" id="qb-cust-phone" placeholder="03XX-XXXXXXX">
+              </div>
+              <div class="form-group">
+                <label>Bill Date</label>
+                <input class="form-control" type="date" id="qb-sale-date">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notes <span style="font-weight:400;text-transform:none;font-size:11px;">(optional)</span></label>
+              <input class="form-control" id="qb-notes" placeholder="Any additional details for this bill...">
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+              <div><h3>Line Items</h3><div class="card-subtitle">For Flex & 3D Sign Board — dimensions auto-calculate to Sq.Ft</div></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addQuickBillRow()">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Item
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="qb-items-container" class="items-container"></div>
+            <div id="qb-no-items" class="empty-state">
+              <div class="empty-icon"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+              <h4>No Items Added</h4>
+              <p>Click "Add Item" above to add products to this sale</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <h3>Bill Summary</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-row cols-3" style="margin-bottom:20px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Discount (Rs.)</label>
+                <input class="form-control" type="number" id="qb-discount" value="0" min="0" oninput="calcQuickBillTotal()">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Amount Paid (Rs.)</label>
+                <input class="form-control" type="number" id="qb-paid" value="0" min="0" oninput="calcQuickBillTotal()">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Payment Method</label>
+                <select class="form-control" id="qb-payment-method">
+                  <option value="cash">Cash</option>
+                  <option value="jazzcash">JazzCash</option>
+                  <option value="easypaisa">EasyPaisa</option>
+                  <option value="bank_account">Bank Account</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bill-summary-box" style="margin-bottom:16px;overflow:visible;">
+              <div class="summary-row"><span class="text-muted">Subtotal</span><span id="qb-subtotal" class="font-semibold">Rs. 0</span></div>
+              <div class="summary-row"><span class="text-muted">Discount</span><span id="qb-discount-label" class="text-danger font-semibold">No discount</span></div>
+              <div class="summary-row total-grand"><span>Grand Total</span><span id="qb-total">Rs. 0</span></div>
+              <div class="summary-row total-paid"><span>Amount Paid</span><span id="qb-paid-label">Rs. 0</span></div>
+              <div class="summary-row" id="qb-balance-row"><span>Balance Due</span><span id="qb-balance">Rs. 0</span></div>
+            </div>
+
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:4px;">
+              <input id="qb-auto-save-pdf" type="checkbox" checked>
+              Auto save PDF in system folder after bill create
+            </label>
+            <div class="field-hint">PDF folder: Documents/Abdullah Shop - Bills</div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
+              <button class="btn btn-ghost" onclick="showPage('dashboard')">Cancel</button>
+              <button class="btn btn-success btn-lg" onclick="submitQuickBill()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Save Manual Bill
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>

@@ -1,0 +1,129 @@
+<section class="page" id="page-accounts">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title-main">Accounts Center</div>
+            <div class="section-title-sub">Manage complete project transactions by payment method and source</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <input class="form-control" id="acc-search" placeholder="Search title, description, notes..." style="width:260px;" oninput="debounceAccountsSearch()">
+            <input class="form-control" type="date" id="acc-from" style="width:150px;" onchange="loadAccounts()">
+            <input class="form-control" type="date" id="acc-to" style="width:150px;" onchange="loadAccounts()">
+            <select class="form-control" id="acc-type-filter" style="width:140px;" onchange="loadAccounts()">
+              <option value="">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+            <select class="form-control" id="acc-method-filter" style="width:155px;" onchange="loadAccounts()">
+              <option value="">All Methods</option>
+              <option value="cash">Cash</option>
+              <option value="jazzcash">JazzCash</option>
+              <option value="easypaisa">EasyPaisa</option>
+              <option value="bank_account">Bank Account</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="clearAccountsFilters()">Clear</button>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <h3>Manual Account Transaction</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:12px;">
+              <div class="form-group">
+                <label>Date</label>
+                <input class="form-control" type="date" id="acc-date">
+              </div>
+              <div class="form-group">
+                <label>Type</label>
+                <select class="form-control" id="acc-type">
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Payment Method</label>
+                <select class="form-control" id="acc-method" onchange="syncAccountBankUI()">
+                  <option value="cash">Cash (0)</option>
+                  <option value="jazzcash">JazzCash (0)</option>
+                  <option value="easypaisa">EasyPaisa (0)</option>
+                  <option value="bank_account">Bank Account (0)</option>
+                </select>
+              </div>
+              <div class="form-group" id="acc-bank-wrap" style="display:none;">
+                <label>Bank Account</label>
+                <select class="form-control" id="acc-bank"></select>
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                  <input class="form-control" id="acc-bank-new" placeholder="Add new bank name">
+                  <button class="btn btn-outline-primary btn-sm" type="button" onclick="addBankAccountName()">+ Add</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Amount (Rs.)</label>
+                <input class="form-control" type="number" id="acc-amount" min="0" step="1" placeholder="e.g. 8000">
+              </div>
+              <div class="form-group">
+                <label>Title</label>
+                <input class="form-control" id="acc-title" placeholder="e.g. Flex material purchase">
+              </div>
+            </div>
+
+            <div class="form-row cols-2 mb-3">
+              <div class="form-group">
+                <label>Description</label>
+                <input class="form-control" id="acc-description" placeholder="Short description...">
+              </div>
+              <div class="form-group">
+                <label>Notes</label>
+                <input class="form-control" id="acc-notes" placeholder="Optional note...">
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:8px;">
+              <button class="btn btn-ghost" id="acc-cancel-btn" style="display:none;" onclick="cancelAccountEdit()">Cancel Edit</button>
+              <button class="btn btn-success" id="acc-save-btn" onclick="saveAccountTransaction()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Save Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px;">
+          <div class="stat-card accent-green">
+            <div class="stat-top"><div><div class="stat-label">Total Income</div><div class="stat-value sm" id="acc-total-income">—</div></div><div class="stat-icon-wrap green"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          </div>
+          <div class="stat-card accent-red">
+            <div class="stat-top"><div><div class="stat-label">Total Expense</div><div class="stat-value sm" id="acc-total-expense">—</div></div><div class="stat-icon-wrap red"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+          </div>
+          <div class="stat-card accent-blue">
+            <div class="stat-top"><div><div class="stat-label">Net Balance</div><div class="stat-value sm" id="acc-net-balance">—</div></div><div class="stat-icon-wrap blue"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Source</th>
+                  <th>Type</th>
+                  <th>Method</th>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="acc-table-body">
+                <tr><td colspan="9" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>

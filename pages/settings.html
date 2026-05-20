@@ -1,0 +1,49 @@
+<section class="page" id="page-settings">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title-main">Shop Settings</div>
+            <div class="section-title-sub">Configure your shop details that appear on bills and reports</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-section">
+            <div class="settings-section-title">Business Information</div>
+            <div class="form-row cols-2 mb-4">
+              <div class="form-group">
+                <label>Shop Name</label>
+                <input class="form-control" id="set-name" placeholder="e.g. Abdullah Shop">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input class="form-control" id="set-phone" placeholder="03XX-XXXXXXX">
+              </div>
+            </div>
+            <div class="form-group mb-4">
+              <label>Full Address</label>
+              <input class="form-control" id="set-address" placeholder="Shop complete address">
+            </div>
+            <div class="form-group">
+              <label>Services / Tagline</label>
+              <input class="form-control" id="set-tagline" placeholder="Sign Board | Flex | 3D Board | Number Plates">
+              <div class="field-hint">Shown on bills and PDF reports</div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Bill Configuration</div>
+            <div class="form-group" style="max-width:220px;">
+              <label>Bill Number Prefix</label>
+              <input class="form-control" id="set-prefix" placeholder="ABD">
+              <div class="field-hint">Example: ABD-20240315-001</div>
+            </div>
+          </div>
+
+          <div class="settings-section" style="border-bottom:none;">
+            <button class="btn btn-primary" onclick="saveSettings()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Settings
+            </button>
+          </div>
+        </div>
+      </section>

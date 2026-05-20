@@ -1,0 +1,83 @@
+  <!-- ===== FLEX PAYMENT MODAL ===== -->
+  <div id="fx-payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;padding:28px;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#0D9488;">Add Payment</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px;" id="fx-pay-modal-info"></div>
+        </div>
+        <button onclick="closeFxPaymentModal()" style="background:#F1F5F9;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;color:#64748B;">✕</button>
+      </div>
+      <input type="hidden" id="fx-pay-bill-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Payment Date</label>
+          <input class="form-control" type="date" id="fx-pay-date" style="border-color:#0D9488;font-size:13px;">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Amount (Rs.) *</label>
+          <input class="form-control" type="number" id="fx-pay-amount" min="1" placeholder="0" style="border-color:#0D9488;font-size:13px;font-weight:700;">
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Payment Method</label>
+        <select class="form-control" id="fx-pay-method" style="border-color:#0D9488;font-size:13px;">
+          <option value="cash">Cash</option>
+          <option value="jazzcash">JazzCash</option>
+          <option value="easypaisa">Easypaisa</option>
+          <option value="bank_account">Bank Transfer</option>
+        </select>
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Notes</label>
+        <input class="form-control" id="fx-pay-notes" placeholder="Optional..." style="border-color:#0D9488;font-size:13px;">
+      </div>
+      <!-- Payment history for this bill -->
+      <div id="fx-pay-history" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:6px;"></div>
+      <button onclick="submitFlexPayment()" style="width:100%;background:linear-gradient(135deg,#0D9488,#0F766E);color:#fff;border:none;padding:11px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;">
+        ✓ Save Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================== BILL MODAL ============================== -->
+  <div class="modal-overlay" id="modal-bill-overlay">
+    <div class="modal" style="max-width:780px;">
+      <div class="modal-header">
+        <h3>Invoice Preview</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-ghost btn-sm" id="bill-print-btn" type="button" onclick="printBillPage()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print
+          </button>
+          <button class="btn btn-primary btn-sm" id="bill-save-pdf-btn" type="button" onclick="doPrintBill()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save PDF
+          </button>
+          <button class="modal-close" onclick="closeBillModal()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div id="bill-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== CONFIRM MODAL ============================== -->
+  <div class="modal-overlay" id="modal-confirm-overlay">
+    <div class="modal confirm-modal" style="max-width:400px;">
+      <div class="modal-body" style="text-align:center;padding:32px 28px;">
+        <div class="confirm-icon-wrap danger">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <h3 style="font-size:18px;font-weight:800;margin-bottom:8px;">Delete Sale?</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.6;" id="confirm-msg">This sale will be permanently deleted and cannot be recovered.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+        <button class="btn btn-danger" id="confirm-yes-btn">Yes, Delete</button>
+      </div>
+    </div>
+  </div>

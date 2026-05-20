@@ -1,0 +1,33 @@
+<section class="page" id="page-reports">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title-main">Monthly Reports</div>
+            <div class="section-title-sub">Detailed breakdown of sales, revenue and sq.footage</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="form-control" id="rep-month" style="width:135px;" onchange="loadReport()">
+              <option value="01">January</option><option value="02">February</option>
+              <option value="03">March</option><option value="04">April</option>
+              <option value="05">May</option><option value="06">June</option>
+              <option value="07">July</option><option value="08">August</option>
+              <option value="09">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+            <select class="form-control" id="rep-year" style="width:95px;" onchange="loadReport()"></select>
+            <button class="btn btn-primary" onclick="exportReportPDF()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body" id="report-content">
+            <div class="empty-state">
+              <div class="empty-icon"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+              <h4>Select Month & Year</h4>
+              <p>Choose a month and year above to view the report</p>
+            </div>
+          </div>
+        </div>
+      </section>

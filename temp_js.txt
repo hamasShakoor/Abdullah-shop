@@ -1,0 +1,18 @@
+
+function switchPLTab(tab) {
+  document.querySelectorAll('.pl-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.pl-tab-btn').forEach(el => {
+    el.style.color = 'rgba(255,255,255,0.7)';
+    el.style.borderBottomColor = 'transparent';
+  });
+
+  if (tab === 'daily-khata') {
+    document.getElementById('tab-daily-khata').style.display = 'block';
+    document.querySelectorAll('.pl-tab-btn')[0].style.color = '#fff';
+    document.querySelectorAll('.pl-tab-btn')[0].style.borderBottomColor = '#fff';
+  } else {
+    document.getElementById('tab-product-ledger').style.display = 'block';
+    document.querySelectorAll('.pl-tab-btn')[1].style.color = '#fff';
+    document.querySelectorAll('.pl-tab-btn')[1].style.borderBottomColor = '#fff';
+  }
+}
