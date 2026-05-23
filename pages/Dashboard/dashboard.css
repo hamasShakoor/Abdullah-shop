@@ -1,0 +1,3 @@
+/* ===== CHART CONTROLS ===== */
+.chart-type-btns { display: flex; gap: 4px; }
+.chart-card-body { padding-top: 8px; }

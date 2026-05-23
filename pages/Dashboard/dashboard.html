@@ -126,13 +126,13 @@
                 <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                 <div><h3>Revenue — Last 12 Months</h3></div>
               </div>
-              <div style="display:flex;gap:4px;">
+              <div class="chart-type-btns">
                 <button id="chart-btn-bar" onclick="switchChartType('bar')" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--primary);color:#fff;font-size:11px;font-weight:600;cursor:pointer;">Bar</button>
                 <button id="chart-btn-line" onclick="switchChartType('line')" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">Line</button>
                 <button id="chart-btn-area" onclick="switchChartType('area')" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">Area</button>
               </div>
             </div>
-            <div class="card-body" style="padding-top:8px;">
+            <div class="card-body chart-card-body">
               <div id="apex-revenue-chart"></div>
             </div>
           </div>

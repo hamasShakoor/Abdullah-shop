@@ -138,12 +138,38 @@
 </div>
 
 <script>
-// Page loader - loads page HTML files dynamically
+// Page folder map — each page name maps to its subfolder
+const _pageFolders = {
+  'dashboard':      'Dashboard',
+  'accounts':       'Accounts',
+  'daily-reports':  'DailyReports',
+  'flex-module':    'FlexModule',
+  'history':        'History',
+  'new-sale':       'NewSale',
+  'owner-ledger':   'OwnerLedger',
+  'products':       'Products',
+  'profit-loss':    'ProfitLoss',
+  'quick-bill':     'QuickBill',
+  'reports':        'Reports',
+  'settings':       'Settings',
+};
+
+// Page loader - loads page HTML and injects page CSS on first visit
 const _pageCache = {};
 async function loadPageContent(pageName) {
   if (_pageCache[pageName]) return _pageCache[pageName];
   try {
-    const r = await fetch('pages/' + pageName + '.html');
+    const folder = _pageFolders[pageName] || pageName;
+    // Inject page-specific CSS once
+    const cssId = 'page-css-' + pageName;
+    if (!document.getElementById(cssId)) {
+      const link = document.createElement('link');
+      link.id   = cssId;
+      link.rel  = 'stylesheet';
+      link.href = 'pages/' + folder + '/' + pageName + '.css';
+      document.head.appendChild(link);
+    }
+    const r = await fetch('pages/' + folder + '/' + pageName + '.html');
     const html = await r.text();
     _pageCache[pageName] = html;
     return html;
@@ -154,9 +180,13 @@ async function loadPageContent(pageName) {
 }
 // Store modals-ready promise globally so init() in app.js can await it
 window._modalsReady = (async function initPageLoader() {
-  // Load modals into modal-container
+  // Inject modals CSS then load modals HTML
   try {
-    const r = await fetch('pages/modals.html');
+    const link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = 'pages/Modals/modals.css';
+    document.head.appendChild(link);
+    const r = await fetch('pages/Modals/modals.html');
     const html = await r.text();
     document.getElementById('modal-container').innerHTML = html;
   } catch(e) {}

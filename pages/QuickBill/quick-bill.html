@@ -68,16 +68,16 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="form-row cols-3" style="margin-bottom:20px;">
-              <div class="form-group" style="margin-bottom:0;">
+            <div class="form-row cols-3 qb-summary-inputs" style="margin-bottom:20px;">
+              <div class="form-group">
                 <label>Discount (Rs.)</label>
                 <input class="form-control" type="number" id="qb-discount" value="0" min="0" oninput="calcQuickBillTotal()">
               </div>
-              <div class="form-group" style="margin-bottom:0;">
+              <div class="form-group">
                 <label>Amount Paid (Rs.)</label>
                 <input class="form-control" type="number" id="qb-paid" value="0" min="0" oninput="calcQuickBillTotal()">
               </div>
-              <div class="form-group" style="margin-bottom:0;">
+              <div class="form-group">
                 <label>Payment Method</label>
                 <select class="form-control" id="qb-payment-method">
                   <option value="cash">Cash</option>
@@ -102,7 +102,7 @@
             </label>
             <div class="field-hint">PDF folder: Documents/Abdullah Shop - Bills</div>
 
-            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
+            <div class="qb-bill-actions">
               <button class="btn btn-ghost" onclick="showPage('dashboard')">Cancel</button>
               <button class="btn btn-success btn-lg" onclick="submitQuickBill()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>

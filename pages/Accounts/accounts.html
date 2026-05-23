@@ -4,7 +4,7 @@
             <div class="section-title-main">Accounts Center</div>
             <div class="section-title-sub">Manage complete project transactions by payment method and source</div>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="acc-header-filters">
             <input class="form-control" id="acc-search" placeholder="Search title, description, notes..." style="width:260px;" oninput="debounceAccountsSearch()">
             <input class="form-control" type="date" id="acc-from" style="width:150px;" onchange="loadAccounts()">
             <input class="form-control" type="date" id="acc-to" style="width:150px;" onchange="loadAccounts()">
@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="card-body">
-            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:12px;">
+            <div class="acc-form-grid">
               <div class="form-group">
                 <label>Date</label>
                 <input class="form-control" type="date" id="acc-date">
@@ -56,7 +56,7 @@
               <div class="form-group" id="acc-bank-wrap" style="display:none;">
                 <label>Bank Account</label>
                 <select class="form-control" id="acc-bank"></select>
-                <div style="display:flex;gap:6px;margin-top:8px;">
+                <div class="acc-bank-add">
                   <input class="form-control" id="acc-bank-new" placeholder="Add new bank name">
                   <button class="btn btn-outline-primary btn-sm" type="button" onclick="addBankAccountName()">+ Add</button>
                 </div>
@@ -82,7 +82,7 @@
               </div>
             </div>
 
-            <div style="display:flex;justify-content:flex-end;gap:8px;">
+            <div class="acc-form-actions">
               <button class="btn btn-ghost" id="acc-cancel-btn" style="display:none;" onclick="cancelAccountEdit()">Cancel Edit</button>
               <button class="btn btn-success" id="acc-save-btn" onclick="saveAccountTransaction()">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -92,7 +92,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px;">
+        <div class="acc-stats-grid">
           <div class="stat-card accent-green">
             <div class="stat-top"><div><div class="stat-label">Total Income</div><div class="stat-value sm" id="acc-total-income">—</div></div><div class="stat-icon-wrap green"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
           </div>

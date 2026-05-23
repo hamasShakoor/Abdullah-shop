@@ -1,0 +1,420 @@
+/* ===== STATS BAR ===== */
+.fx-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.fx-stat {
+  color: #fff;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.fx-stat-teal  { background: linear-gradient(135deg, #0D9488, #0F766E); box-shadow: 0 2px 10px rgba(13, 148, 136, 0.25); }
+.fx-stat-cyan  { background: linear-gradient(135deg, #0891B2, #0E7490); box-shadow: 0 2px 10px rgba(8, 145, 178, 0.25); }
+.fx-stat-amber { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 2px 10px rgba(217, 119, 6, 0.25); }
+.fx-stat-red   { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 2px 10px rgba(220, 38, 38, 0.25); }
+
+.fx-stat-label { font-size: 11px; opacity: 0.8; margin-bottom: 4px; }
+.fx-stat-value { font-size: 22px; font-weight: 800; }
+.fx-stat-sub   { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+/* ===== TAB BAR ===== */
+.fx-tab-bar {
+  background: linear-gradient(135deg, #0D9488, #0F766E);
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  margin-bottom: 0;
+}
+
+.fx-tab-btn {
+  flex: 1;
+  padding: 14px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.fx-tab-btn:first-child { border-radius: 10px 0 0 0; }
+.fx-tab-btn:last-child  { border-radius: 0 10px 0 0; }
+
+.fx-tab-btn.active,
+.fx-tab-btn[data-active="true"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-bottom-color: #fff;
+  font-weight: 700;
+}
+
+/* ===== DASHBOARD TAB ===== */
+.fx-dashboard-card {
+  border-top: 3px solid #0D9488;
+  border-radius: 0 0 10px 10px;
+  padding: 20px;
+}
+
+.fx-table-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0D9488;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fx-teal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.fx-teal-table thead { background: #F0FDFA; }
+.fx-teal-table thead th {
+  padding: 9px 10px;
+  color: #0D9488;
+  font-size: 11px;
+  border-bottom: 2px solid #99F6E4;
+  text-align: left;
+}
+.fx-teal-table thead th.col-right { text-align: right; }
+.fx-teal-table thead th.col-center { text-align: center; }
+
+/* Balance header cell with gradient */
+.fx-teal-table thead th.col-balance {
+  background: linear-gradient(135deg, #0D9488, #0F766E);
+  color: #fff;
+  text-align: right;
+}
+
+/* ===== BILLS TAB ===== */
+.fx-bill-form-card {
+  border-left: 4px solid #0D9488;
+  border-radius: 0 0 8px 8px;
+  background: #F0FDFA;
+}
+
+.fx-bill-form-body { padding: 16px; }
+
+.fx-bill-form-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0D9488;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fx-bill-grid-1 {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 120px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fx-bill-grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 100px 100px 100px 120px 130px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fx-bill-grid-3 {
+  display: grid;
+  grid-template-columns: 130px 160px 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.fx-bill-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0D9488;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.fx-bill-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+#fx-bill-cancel-btn {
+  background: #6B7280;
+  color: #fff;
+  border: none;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#fx-bill-save-btn {
+  background: linear-gradient(135deg, #0D9488, #0F766E);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Filter Bar */
+.fx-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fx-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0D9488;
+}
+
+.fx-clear-btn {
+  background: #6B7280;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Bills Table */
+.fx-bills-table-card {
+  border-top: 3px solid #0D9488;
+  border-radius: 4px;
+}
+
+.fx-bills-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+/* Bills Footer */
+.fx-bills-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 14px;
+  background: #F0FDFA;
+  border-top: 1px solid #99F6E4;
+}
+
+.fx-bills-footer-item { text-align: center; }
+
+.fx-bills-footer-label {
+  font-size: 10px;
+  color: #0D9488;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.fx-bills-footer-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F766E;
+}
+
+.fx-bills-footer-value.outstanding { color: #D97706; }
+
+/* ===== EXPENSES TAB ===== */
+.fx-exp-form-card {
+  border-left: 4px solid #DC2626;
+  background: #FEF2F2;
+  border-radius: 0 0 8px 8px;
+}
+
+.fx-exp-form-body { padding: 14px; }
+
+.fx-exp-form-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #DC2626;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.fx-exp-form-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.fx-exp-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #DC2626;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.fx-exp-save-btn {
+  background: linear-gradient(135deg, #DC2626, #B91C1C);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Expense Filter */
+.fx-exp-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.fx-exp-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #DC2626;
+}
+
+/* Expenses Table */
+.fx-exp-table-card {
+  border-top: 3px solid #DC2626;
+  border-radius: 4px;
+}
+
+.fx-exp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.fx-exp-table thead { background: #FEF2F2; }
+.fx-exp-table thead th {
+  padding: 9px 10px;
+  color: #DC2626;
+  font-size: 11px;
+  border-bottom: 2px solid #FECACA;
+  text-align: left;
+}
+.fx-exp-table thead th.col-right { text-align: right; }
+.fx-exp-table thead th.col-center { text-align: center; }
+
+.fx-exp-table-footer {
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border-top: 1px solid #FECACA;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fx-exp-footer-label {
+  font-size: 11px;
+  color: #DC2626;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.fx-exp-footer-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #DC2626;
+}
+
+/* ===== REPORTS TAB ===== */
+.fx-reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fx-monthly-card { border-top: 3px solid #0D9488; }
+.fx-daily-card   { border-top: 3px solid #0891B2; }
+
+.fx-monthly-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0D9488;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fx-daily-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0891B2;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fx-rep-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.fx-rep-label-teal {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0D9488;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fx-rep-label-cyan {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0891B2;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fx-rep-date-field { margin-bottom: 14px; }
+
+.fx-rep-range-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fx-rep-range-sep { color: #999; font-size: 12px; }
+
+.fx-monthly-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0D9488, #0F766E);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fx-daily-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0891B2, #0E7490);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}

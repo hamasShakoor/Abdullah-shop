@@ -72,17 +72,16 @@
             </div>
           </div>
           <div class="card-body">
-            <!-- Payment inputs row -->
-            <div class="form-row cols-3" style="margin-bottom:20px;">
-              <div class="form-group" style="margin-bottom:0;">
+            <div class="form-row cols-3 ns-summary-inputs" style="margin-bottom:20px;">
+              <div class="form-group">
                 <label>Discount (Rs.)</label>
                 <input class="form-control" type="number" id="sale-discount" value="0" min="0" oninput="calcSaleTotal()">
               </div>
-              <div class="form-group" style="margin-bottom:0;">
+              <div class="form-group">
                 <label>Amount Paid (Rs.)</label>
                 <input class="form-control" type="number" id="sale-paid" value="0" min="0" oninput="calcSaleTotal()">
               </div>
-              <div class="form-group" style="margin-bottom:0;">
+              <div class="form-group">
                 <label>Payment Method</label>
                 <select class="form-control" id="sale-payment-method">
                   <option value="cash">Cash</option>
@@ -92,7 +91,6 @@
                 </select>
               </div>
             </div>
-            <!-- Total Breakdown -->
             <div class="bill-summary-box" style="margin-bottom:16px;overflow:visible;">
               <div class="summary-row"><span class="text-muted">Subtotal</span><span id="t-subtotal" class="font-semibold">Rs. 0</span></div>
               <div class="summary-row"><span class="text-muted">Discount</span><span id="t-discount" class="text-danger font-semibold">No discount</span></div>
@@ -100,8 +98,7 @@
               <div class="summary-row total-paid"><span>Amount Paid</span><span id="t-paid">Rs. 0</span></div>
               <div class="summary-row" id="balance-row"><span>Balance Due</span><span id="t-balance">Rs. 0</span></div>
             </div>
-            <!-- Complete Sale button -->
-            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
+            <div class="ns-sale-actions">
               <button class="btn btn-ghost" onclick="showPage('dashboard')">Cancel</button>
               <button class="btn btn-success btn-lg" onclick="submitSale()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>

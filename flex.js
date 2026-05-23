@@ -189,15 +189,16 @@ function editFlexBill(id) {
   fxToast('Edit mode. Changes save karein.', 'info');
 }
 
-async function deleteFlexBill(id) {
-  if (!confirm('Yeh bill delete karna chahte hain? Sari payments bhi delete ho jayengi.')) return;
-  try {
-    await window.shopAPI.deleteFlexBill(id);
-    fxToast('Bill delete ho gaya.', 'success');
-    if (flexBillEditingId === Number(id)) resetFlexBillForm();
-    await loadFlexStats();
-    await loadFlexBills();
-  } catch (e) { fxToast('Delete error: ' + e.message, 'error'); }
+function deleteFlexBill(id) {
+  showConfirm('This bill and all its payment records will be permanently deleted.', async () => {
+    try {
+      await window.shopAPI.deleteFlexBill(id);
+      fxToast('Bill deleted successfully.', 'success');
+      if (flexBillEditingId === Number(id)) resetFlexBillForm();
+      await loadFlexStats();
+      await loadFlexBills();
+    } catch (e) { fxToast('Delete error: ' + e.message, 'error'); }
+  });
 }
 
 async function loadFlexBills() {
@@ -304,15 +305,16 @@ async function submitFlexPayment() {
   } catch (e) { fxToast('Payment error: ' + e.message, 'error'); }
 }
 
-async function deleteFxPayment(payId, billId) {
-  if (!confirm('Yeh payment delete karna chahte hain?')) return;
-  try {
-    await window.shopAPI.deleteFlexPayment(payId);
-    fxToast('Payment delete ho gaya.', 'success');
-    await loadFxPaymentHistory(billId);
-    await loadFlexStats();
-    await loadFlexBills();
-  } catch (e) { fxToast('Error: ' + e.message, 'error'); }
+function deleteFxPayment(payId, billId) {
+  showConfirm('This payment record will be permanently deleted.', async () => {
+    try {
+      await window.shopAPI.deleteFlexPayment(payId);
+      fxToast('Payment deleted successfully.', 'success');
+      await loadFxPaymentHistory(billId);
+      await loadFlexStats();
+      await loadFlexBills();
+    } catch (e) { fxToast('Error: ' + e.message, 'error'); }
+  });
 }
 
 // ==================== EXPENSES ====================
@@ -362,14 +364,15 @@ async function loadFlexExpenses() {
   }
 }
 
-async function deleteFlexExpense(id) {
-  if (!confirm('Yeh expense delete karna chahte hain?')) return;
-  try {
-    await window.shopAPI.deleteFlexExpense(id);
-    fxToast('Expense delete ho gaya.', 'success');
-    await loadFlexExpenses();
-    loadFlexStats();
-  } catch (e) { fxToast('Error: ' + e.message, 'error'); }
+function deleteFlexExpense(id) {
+  showConfirm('This expense entry will be permanently deleted.', async () => {
+    try {
+      await window.shopAPI.deleteFlexExpense(id);
+      fxToast('Expense deleted successfully.', 'success');
+      await loadFlexExpenses();
+      loadFlexStats();
+    } catch (e) { fxToast('Error: ' + e.message, 'error'); }
+  });
 }
 
 // ==================== REPORTS ====================

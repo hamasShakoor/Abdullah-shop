@@ -1,40 +1,40 @@
   <!-- ===== FLEX PAYMENT MODAL ===== -->
-  <div id="fx-payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:12px;padding:28px;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+  <div id="fx-payment-modal">
+    <div class="fx-modal-box">
+      <div class="fx-modal-header">
         <div>
-          <div style="font-size:15px;font-weight:700;color:#0D9488;">Add Payment</div>
-          <div style="font-size:12px;color:#64748B;margin-top:2px;" id="fx-pay-modal-info"></div>
+          <div class="fx-modal-title">Add Payment</div>
+          <div class="fx-modal-info" id="fx-pay-modal-info"></div>
         </div>
-        <button onclick="closeFxPaymentModal()" style="background:#F1F5F9;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;color:#64748B;">✕</button>
+        <button onclick="closeFxPaymentModal()" class="fx-modal-close">✕</button>
       </div>
       <input type="hidden" id="fx-pay-bill-id">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="fx-modal-grid">
         <div>
-          <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Payment Date</label>
-          <input class="form-control" type="date" id="fx-pay-date" style="border-color:#0D9488;font-size:13px;">
+          <label class="fx-modal-label">Payment Date</label>
+          <input class="form-control fx-modal-input" type="date" id="fx-pay-date">
         </div>
         <div>
-          <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Amount (Rs.) *</label>
-          <input class="form-control" type="number" id="fx-pay-amount" min="1" placeholder="0" style="border-color:#0D9488;font-size:13px;font-weight:700;">
+          <label class="fx-modal-label">Amount (Rs.) *</label>
+          <input class="form-control fx-modal-input-amount" type="number" id="fx-pay-amount" min="1" placeholder="0">
         </div>
       </div>
-      <div style="margin-bottom:12px;">
-        <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Payment Method</label>
-        <select class="form-control" id="fx-pay-method" style="border-color:#0D9488;font-size:13px;">
+      <div class="fx-modal-field">
+        <label class="fx-modal-label">Payment Method</label>
+        <select class="form-control fx-modal-input" id="fx-pay-method">
           <option value="cash">Cash</option>
           <option value="jazzcash">JazzCash</option>
           <option value="easypaisa">Easypaisa</option>
           <option value="bank_account">Bank Transfer</option>
         </select>
       </div>
-      <div style="margin-bottom:18px;">
-        <label style="font-size:11px;font-weight:600;color:#0D9488;display:block;margin-bottom:4px;">Notes</label>
-        <input class="form-control" id="fx-pay-notes" placeholder="Optional..." style="border-color:#0D9488;font-size:13px;">
+      <div class="fx-modal-notes-field">
+        <label class="fx-modal-label">Notes</label>
+        <input class="form-control fx-modal-input" id="fx-pay-notes" placeholder="Optional...">
       </div>
       <!-- Payment history for this bill -->
-      <div id="fx-pay-history" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:6px;"></div>
-      <button onclick="submitFlexPayment()" style="width:100%;background:linear-gradient(135deg,#0D9488,#0F766E);color:#fff;border:none;padding:11px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;">
+      <div id="fx-pay-history" class="fx-pay-history"></div>
+      <button onclick="submitFlexPayment()" class="fx-modal-save-btn">
         ✓ Save Payment
       </button>
     </div>

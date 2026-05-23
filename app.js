@@ -1423,6 +1423,12 @@ function confirmDeleteSale(id, billNo) {
   document.getElementById('modal-confirm-overlay').classList.add('open');
 }
 function closeConfirm() { document.getElementById('modal-confirm-overlay').classList.remove('open'); }
+
+function showConfirm(message, onConfirm) {
+  document.getElementById('confirm-msg').textContent = message;
+  document.getElementById('confirm-yes-btn').onclick = () => { closeConfirm(); onConfirm(); };
+  document.getElementById('modal-confirm-overlay').classList.add('open');
+}
 async function doDeleteSale(id) {
   closeConfirm();
   try {
@@ -3247,14 +3253,32 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.className = 'toast ' + type;
-  const icons = { success: '✓', error: '✕', info: 'i', warning: '!' };
-  toast.innerHTML = `<div class="toast-icon">${icons[type] || 'i'}</div><div class="toast-msg">${message}</div>`;
+
+  const svgIcons = {
+    success: `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error:   `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    warning: `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    info:    `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  };
+  const titles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Info' };
+
+  toast.innerHTML = `
+    <div class="toast-icon-wrap">${svgIcons[type] || svgIcons.info}</div>
+    <div class="toast-body">
+      <div class="toast-title">${titles[type] || 'Notice'}</div>
+      <div class="toast-msg">${message}</div>
+    </div>
+    <button class="toast-close" onclick="this.closest('.toast').remove()" title="Dismiss">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+
   container.appendChild(toast);
   setTimeout(() => {
-    toast.style.transition = 'opacity .35s, transform .35s';
-    toast.style.opacity = '0'; toast.style.transform = 'translateX(30px)';
-    setTimeout(() => toast.remove(), 380);
-  }, 3800);
+    toast.style.transition = 'opacity .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.4,0,.2,1)';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    setTimeout(() => toast.remove(), 320);
+  }, 4200);
 }
 
 // ===== DAILY EXPENSES PDF — shared helper =====

@@ -4,7 +4,7 @@
             <div class="section-title-main">Daily Reports</div>
             <div class="section-title-sub">Complete sales, revenue, and sq. footage details for any day</div>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;">
+          <div class="dr-header-controls">
             <input class="form-control" type="date" id="daily-rep-date" style="width:175px;" onchange="loadDailyReport()">
             <button class="btn btn-primary" onclick="exportDailyReportPDF()">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>

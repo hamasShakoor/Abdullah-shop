@@ -1,0 +1,250 @@
+<section class="page" id="page-profit-loss">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title-main">Daily Ledger Entry</div>
+            <div class="section-title-sub">Track daily expenses and product sales together</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn btn-primary" onclick="showPage('new-sale')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              NEW BILL
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="completeDayEntry()" title="Complete today's entry">Complete Day</button>
+            <button class="btn btn-success btn-sm" onclick="exportDailyKhataMonthlyPDF()" title="Generate monthly expense PDF report">Monthly PDF</button>
+          </div>
+        </div>
+
+        <!-- ==== DAILY SUMMARY ==== -->
+        <div class="card mb-4 pl-summary-card">
+          <div class="pl-summary-header">
+            <div class="pl-summary-header-title">Daily Summary</div>
+            <div id="summary-date-label" class="pl-summary-date"></div>
+          </div>
+          <div class="pl-summary-body">
+            <!-- Today's Earnings -->
+            <div class="pl-earnings-col">
+              <div class="pl-earnings-title">Today's Earnings</div>
+              <table class="pl-earnings-table">
+                <thead><tr>
+                  <th>Product</th>
+                  <th>Amount</th>
+                </tr></thead>
+                <tbody id="summary-kamaya-tbody">
+                  <tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">Loading...</td></tr>
+                </tbody>
+                <tfoot><tr>
+                  <td>Total Earned:</td>
+                  <td id="summary-kamaya-total">Rs. 0</td>
+                </tr></tfoot>
+              </table>
+            </div>
+            <!-- Net Total -->
+            <div class="pl-net-col">
+              <div class="pl-net-label">Net Total</div>
+              <div id="summary-net-total" class="pl-net-value">Rs. 0</div>
+              <div id="summary-net-formula" class="pl-net-formula"></div>
+            </div>
+            <!-- Today's Expenses -->
+            <div class="pl-expenses-col">
+              <div class="pl-expenses-title">Today's Expenses</div>
+              <table class="pl-expenses-table">
+                <thead><tr>
+                  <th>Item / Name</th>
+                  <th>Amount</th>
+                </tr></thead>
+                <tbody id="summary-usehoga-tbody">
+                  <tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">Loading...</td></tr>
+                </tbody>
+                <tfoot><tr>
+                  <td>Total Spent:</td>
+                  <td id="summary-usehoga-total">Rs. 0</td>
+                </tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==== SUMMARY STATS ==== -->
+        <div class="pl-stats-grid">
+          <div class="pl-stat pl-stat-blue">
+            <div class="pl-stat-label">Total Expenses</div>
+            <div class="pl-stat-value" id="khata-total-amount">Rs. 0</div>
+          </div>
+          <div class="pl-stat pl-stat-blue2">
+            <div class="pl-stat-label">Entries</div>
+            <div class="pl-stat-value" id="khata-total-entries">0</div>
+          </div>
+          <div class="pl-stat pl-stat-blue3">
+            <div class="pl-stat-label">Total Revenue</div>
+            <div class="pl-stat-value" id="pl-revenue">Rs. 0</div>
+          </div>
+          <div class="pl-stat pl-stat-blue">
+            <div class="pl-stat-label">Last Entry</div>
+            <div class="pl-stat-value-sm" id="khata-last-date">—</div>
+          </div>
+        </div>
+
+        <!-- ==== TAB SELECTOR ==== -->
+        <div class="card mb-4 pl-tabs-card">
+          <div class="pl-tabs-inner">
+            <button class="pl-tab-btn active" onclick="switchPLTab('daily-khata')" style="flex:1;padding:16px;background:transparent;color:#fff;border:none;border-bottom:3px solid #fff;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s;">
+              📊 Daily Expenses
+            </button>
+            <button class="pl-tab-btn" onclick="switchPLTab('product-ledger')" style="flex:1;padding:16px;background:transparent;color:rgba(255,255,255,0.7);border:none;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s;">
+              📦 Product Ledger (Sales)
+            </button>
+          </div>
+        </div>
+
+        <!-- ==== DAILY EXPENSES TAB ==== -->
+        <div id="tab-daily-khata" class="pl-tab-content" style="display:block;">
+          <!-- QUICK ENTRY FORM -->
+          <div class="card mb-3 pl-entry-form">
+            <div class="card-body" style="padding:14px;">
+              <div class="pl-entry-form-grid">
+                <div>
+                  <label class="pl-entry-label">Date</label>
+                  <input class="form-control" type="date" id="khata-date" style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <label class="pl-entry-label">Time</label>
+                  <input class="form-control" type="time" id="khata-time" style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <label class="pl-entry-label">Expense Name</label>
+                  <input class="form-control" id="khata-item-name" placeholder="e.g. Silver, Chai..." style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <label class="pl-entry-label">Qty/Detail</label>
+                  <input class="form-control" id="khata-quantity-details" placeholder="2kg, etc." style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <label class="pl-entry-label">Amount</label>
+                  <input class="form-control" type="number" id="khata-amount" min="0" step="1" placeholder="0" style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <label class="pl-entry-label">Notes</label>
+                  <input class="form-control" id="khata-notes" placeholder="Optional" style="border-color:#0066cc;padding:6px 8px;font-size:12px;">
+                </div>
+                <div>
+                  <button class="btn" id="khata-save-btn" onclick="saveDailyKhataEntry()" style="background:linear-gradient(135deg,#0066cc 0%,#0052a3 100%);color:#fff;border:none;padding:6px 14px;font-size:12px;font-weight:600;border-radius:4px;cursor:pointer;">Save Entry</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILTER ROW -->
+          <div class="pl-filter-row">
+            <span class="pl-filter-label">📅 Filter:</span>
+            <input class="form-control" type="date" id="pl-from" style="width:130px;border-color:#0066cc;padding:6px 8px;font-size:12px;" onchange="onProfitLossFilterChange()">
+            <span style="color:#999;">to</span>
+            <input class="form-control" type="date" id="pl-to" style="width:130px;border-color:#0066cc;padding:6px 8px;font-size:12px;" onchange="onProfitLossFilterChange()">
+            <button class="btn btn-ghost btn-sm" onclick="clearPLFilter()" style="padding:6px 10px;font-size:11px;">✕ Clear</button>
+          </div>
+
+          <!-- LEDGER TABLE -->
+          <div class="card pl-ledger-card">
+            <div class="table-wrap" style="overflow-x:auto;">
+              <table class="pl-ledger-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Expense Name</th>
+                    <th>Qty/Detail</th>
+                    <th class="col-amount">Amount</th>
+                    <th class="col-running">Running Total</th>
+                    <th class="col-notes">Notes</th>
+                    <th class="col-action">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-khata-table-body">
+                  <tr><td colspan="8" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==== PRODUCT LEDGER TAB ==== -->
+        <div id="tab-product-ledger" class="pl-tab-content" style="display:none;">
+          <div class="pl-product-form-wrap">
+            <div style="margin-bottom:12px;">
+              <h3>Product Sales Entry</h3>
+              <p>Track product sales and calculate profit/loss</p>
+            </div>
+            <div class="pl-product-form-grid-4">
+              <div>
+                <label class="pl-product-form-label">Date</label>
+                <input class="form-control" type="date" id="pl-date" style="padding:6px 8px;font-size:12px;">
+              </div>
+              <div>
+                <label class="pl-product-form-label">Category</label>
+                <select class="form-control" id="pl-category" onchange="onPLCategoryChange()" style="padding:6px 8px;font-size:12px;">
+                  <option value="">-- Select Category --</option>
+                  <option value="3d_signboard">3D SIGN BOARD</option>
+                  <option value="qatba_plate">QATBA PLATE</option>
+                  <option value="number_plate">NUMBER PLATE</option>
+                  <option value="stiker">STIKER</option>
+                  <option value="__add_custom__">+ Add Custom</option>
+                </select>
+                <input class="form-control" id="pl-custom-category" style="margin-top:8px;display:none;padding:6px 8px;font-size:12px;" placeholder="Enter category name" oninput="onPLCustomCategoryInput()">
+              </div>
+              <div>
+                <label class="pl-product-form-label">Product Name</label>
+                <input class="form-control" id="pl-product" placeholder="e.g. ACP Sheet..." style="padding:6px 8px;font-size:12px;">
+              </div>
+              <div>
+                <label class="pl-product-form-label">Sale Price (Rs.)</label>
+                <input class="form-control" type="number" id="pl-amount-input" min="0" step="1" placeholder="0" oninput="calcPLQuickTotal()" style="padding:6px 8px;font-size:12px;">
+              </div>
+            </div>
+            <div class="pl-product-form-grid-2">
+              <div>
+                <label class="pl-product-form-label">Notes (Optional)</label>
+                <input class="form-control" id="pl-notes" placeholder="Additional details..." style="padding:6px 8px;font-size:12px;">
+              </div>
+            </div>
+            <div class="pl-product-form-actions">
+              <button class="btn btn-ghost" onclick="resetPLQuickForm()">Clear</button>
+              <button class="btn btn-ghost" id="pl-cancel-edit-btn" onclick="cancelProfitLossEdit()" style="display:none;">Cancel Edit</button>
+              <button class="btn" id="pl-save-btn" onclick="saveProfitLossEntry()">
+                Save Entry
+              </button>
+            </div>
+          </div>
+
+          <!-- Summary Stats -->
+          <div class="pl-product-stats">
+            <div class="pl-product-stat-item">
+              <div class="pl-product-stat-label">Total Revenue</div>
+              <div class="pl-product-stat-value" id="pl-revenue">Rs. 0</div>
+            </div>
+          </div>
+
+          <!-- Product Table -->
+          <div class="pl-product-table-wrap">
+            <div class="table-wrap">
+              <table class="pl-product-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Product</th>
+                    <th class="col-right">Cost</th>
+                    <th class="col-right">Revenue</th>
+                    <th class="col-pl">P/L</th>
+                    <th>Notes</th>
+                    <th class="col-action">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pl-table-body">
+                  <tr><td colspan="8" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>

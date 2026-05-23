@@ -1,0 +1,309 @@
+<section class="page" id="page-flex-module">
+
+        <!-- Stats Bar -->
+        <div class="fx-stats-bar">
+          <div class="fx-stat fx-stat-teal">
+            <div class="fx-stat-label">Today's Bills</div>
+            <div class="fx-stat-value" id="fx-today-bills">0</div>
+            <div class="fx-stat-sub" id="fx-today-rev">Rs. 0</div>
+          </div>
+          <div class="fx-stat fx-stat-cyan">
+            <div class="fx-stat-label">This Month's Revenue</div>
+            <div class="fx-stat-value" id="fx-month-rev">Rs. 0</div>
+            <div class="fx-stat-sub" id="fx-month-bills">0 bills</div>
+          </div>
+          <div class="fx-stat fx-stat-amber">
+            <div class="fx-stat-label">Outstanding Balance</div>
+            <div class="fx-stat-value" id="fx-outstanding">Rs. 0</div>
+            <div class="fx-stat-sub">Unpaid Balance</div>
+          </div>
+          <div class="fx-stat fx-stat-red">
+            <div class="fx-stat-label">This Month's Expenses</div>
+            <div class="fx-stat-value" id="fx-month-exp">Rs. 0</div>
+            <div class="fx-stat-sub">Total Expenses</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="fx-tab-bar">
+          <button class="fx-tab-btn active" data-tab="dashboard" onclick="switchFlexTab('dashboard')">📊 Dashboard</button>
+          <button class="fx-tab-btn" data-tab="bills" onclick="switchFlexTab('bills')">🧾 Bills</button>
+          <button class="fx-tab-btn" data-tab="expenses" onclick="switchFlexTab('expenses')">💸 Expenses</button>
+          <button class="fx-tab-btn" data-tab="reports" onclick="switchFlexTab('reports')">📄 Reports</button>
+        </div>
+
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div id="flex-tab-dashboard" class="flex-tab-content" style="display:block;">
+          <div class="card fx-dashboard-card">
+            <div class="fx-table-section-title">Recent Bills</div>
+            <div class="table-wrap">
+              <table class="fx-teal-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Bill #</th>
+                    <th>Client</th>
+                    <th>Description</th>
+                    <th class="col-right">Total</th>
+                    <th class="col-right">Paid</th>
+                    <th class="col-right">Balance</th>
+                    <th class="col-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="fx-recent-tbody">
+                  <tr><td colspan="8" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== BILLS TAB ===== -->
+        <div id="flex-tab-bills" class="flex-tab-content" style="display:none;">
+          <!-- Add Bill Form -->
+          <div class="card mb-3 fx-bill-form-card">
+            <div class="fx-bill-form-body">
+              <div class="fx-bill-form-title" id="fx-bill-form-title">New Flex Bill</div>
+              <div class="fx-bill-grid-1">
+                <div>
+                  <label class="fx-bill-label">Date</label>
+                  <input class="form-control" type="date" id="fx-bill-date" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Client Name *</label>
+                  <input class="form-control" id="fx-bill-client" placeholder="Customer name..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Phone</label>
+                  <input class="form-control" id="fx-bill-phone" placeholder="03XX-XXXXXXX" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Qty</label>
+                  <input class="form-control" type="number" id="fx-bill-qty" min="1" value="1" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+              </div>
+              <div class="fx-bill-grid-2">
+                <div>
+                  <label class="fx-bill-label">Description</label>
+                  <input class="form-control" id="fx-bill-desc" placeholder="Banner, Standee, Backlit..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Width (ft)</label>
+                  <input class="form-control" type="number" id="fx-bill-w" min="0" step="0.1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Height (ft)</label>
+                  <input class="form-control" type="number" id="fx-bill-h" min="0" step="0.1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Sq.Ft</label>
+                  <input class="form-control" type="number" id="fx-bill-sqft" min="0" step="0.1" placeholder="Auto" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;background:#E6FFFA;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Rate/Sq.Ft (Rs.)</label>
+                  <input class="form-control" type="number" id="fx-bill-rate" min="0" step="1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Total Amount (Rs.)</label>
+                  <input class="form-control" type="number" id="fx-bill-total" min="0" step="1" placeholder="0" style="border-color:#0D9488;font-size:13px;font-weight:700;padding:6px 8px;background:#E6FFFA;">
+                </div>
+              </div>
+              <div class="fx-bill-grid-3">
+                <div>
+                  <label class="fx-bill-label">Paid Amount (Rs.)</label>
+                  <input class="form-control" type="number" id="fx-bill-paid" min="0" step="1" placeholder="0" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-bill-label">Payment Method</label>
+                  <select class="form-control" id="fx-bill-method" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                    <option value="cash">Cash</option>
+                    <option value="jazzcash">JazzCash</option>
+                    <option value="easypaisa">Easypaisa</option>
+                    <option value="bank_account">Bank Transfer</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="fx-bill-label">Notes</label>
+                  <input class="form-control" id="fx-bill-notes" placeholder="Optional..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+                </div>
+                <div class="fx-bill-btn-group">
+                  <button id="fx-bill-cancel-btn" onclick="cancelFlexBillEdit()" style="display:none;">Cancel</button>
+                  <button id="fx-bill-save-btn" onclick="saveFlexBill()">Save Bill</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="fx-filter-bar">
+            <span class="fx-filter-label">Filter:</span>
+            <input class="form-control" type="date" id="fx-filter-from" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+            <span style="color:#999;font-size:12px;">to</span>
+            <input class="form-control" type="date" id="fx-filter-to" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+            <select class="form-control" id="fx-filter-status" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="partial">Partial</option>
+              <option value="paid">Paid</option>
+            </select>
+            <input class="form-control" id="fx-filter-search" placeholder="Search client / bill#..." style="width:180px;border-color:#0D9488;font-size:12px;padding:5px 8px;" oninput="loadFlexBills()">
+            <button onclick="clearFlexBillFilters()" class="fx-clear-btn">✕ Clear</button>
+          </div>
+
+          <!-- Bills Table -->
+          <div class="card fx-bills-table-card">
+            <div class="table-wrap" style="overflow-x:auto;">
+              <table class="fx-teal-table fx-bills-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Bill #</th>
+                    <th>Client</th>
+                    <th>Description</th>
+                    <th class="col-center">Sq.Ft</th>
+                    <th class="col-right">Total</th>
+                    <th class="col-right">Paid</th>
+                    <th class="col-balance">Balance</th>
+                    <th class="col-center">Status</th>
+                    <th class="col-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="fx-bills-tbody">
+                  <tr><td colspan="10" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Bills Summary Footer -->
+            <div class="fx-bills-footer">
+              <div class="fx-bills-footer-item">
+                <div class="fx-bills-footer-label">Total Bills</div>
+                <div class="fx-bills-footer-value" id="fx-bills-count">0</div>
+              </div>
+              <div class="fx-bills-footer-item">
+                <div class="fx-bills-footer-label">Total Revenue</div>
+                <div class="fx-bills-footer-value" id="fx-bills-revenue">Rs. 0</div>
+              </div>
+              <div class="fx-bills-footer-item">
+                <div class="fx-bills-footer-label fx-bills-footer-label-outstanding" style="color:#D97706;">Outstanding</div>
+                <div class="fx-bills-footer-value outstanding" id="fx-bills-balance">Rs. 0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== EXPENSES TAB ===== -->
+        <div id="flex-tab-expenses" class="flex-tab-content" style="display:none;">
+          <!-- Add Expense Form -->
+          <div class="card mb-3 fx-exp-form-card">
+            <div class="fx-exp-form-body">
+              <div class="fx-exp-form-title">Add Flex Expense</div>
+              <div class="fx-exp-form-grid">
+                <div>
+                  <label class="fx-exp-label">Date</label>
+                  <input class="form-control" type="date" id="fx-exp-date" style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-exp-label">Description *</label>
+                  <input class="form-control" id="fx-exp-desc" placeholder="e.g. Flex material, Ink, Labour..." style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-exp-label">Amount (Rs.) *</label>
+                  <input class="form-control" type="number" id="fx-exp-amount" min="0" step="1" placeholder="0" style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+                </div>
+                <div>
+                  <label class="fx-exp-label">Notes</label>
+                  <input class="form-control" id="fx-exp-notes" placeholder="Optional..." style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+                </div>
+                <button onclick="saveFlexExpense()" class="fx-exp-save-btn">Save</button>
+              </div>
+            </div>
+          </div>
+          <!-- Expense Filter -->
+          <div class="fx-exp-filter-bar">
+            <span class="fx-exp-filter-label">Filter:</span>
+            <input class="form-control" type="date" id="fx-exp-from" style="width:130px;border-color:#DC2626;font-size:12px;padding:5px 8px;" onchange="loadFlexExpenses()">
+            <span style="color:#999;font-size:12px;">to</span>
+            <input class="form-control" type="date" id="fx-exp-to" style="width:130px;border-color:#DC2626;font-size:12px;padding:5px 8px;" onchange="loadFlexExpenses()">
+            <button onclick="document.getElementById('fx-exp-from').value='';document.getElementById('fx-exp-to').value='';loadFlexExpenses();" class="fx-clear-btn">✕ Clear</button>
+          </div>
+          <!-- Expenses Table -->
+          <div class="card fx-exp-table-card">
+            <div class="table-wrap">
+              <table class="fx-exp-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="col-right">Amount</th>
+                    <th>Notes</th>
+                    <th class="col-center">Delete</th>
+                  </tr>
+                </thead>
+                <tbody id="fx-expenses-tbody">
+                  <tr><td colspan="5" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="fx-exp-table-footer">
+              <span class="fx-exp-footer-label">Total Expenses</span>
+              <span class="fx-exp-footer-value" id="fx-exp-total">Rs. 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== REPORTS TAB ===== -->
+        <div id="flex-tab-reports" class="flex-tab-content" style="display:none;">
+          <div class="fx-reports-grid">
+            <!-- Monthly Report -->
+            <div class="card fx-monthly-card">
+              <div class="card-body" style="padding:20px;">
+                <div class="fx-monthly-title">Monthly Report (PDF)</div>
+                <div class="fx-rep-grid">
+                  <div>
+                    <label class="fx-rep-label-teal">Month</label>
+                    <select class="form-control" id="fx-rep-month" style="border-color:#0D9488;font-size:12px;">
+                      <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+                      <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                      <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+                      <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="fx-rep-label-teal">Client</label>
+                    <select class="form-control" id="fx-rep-client" style="border-color:#0D9488;font-size:12px;"></select>
+                  </div>
+                  <div>
+                    <label class="fx-rep-label-teal">Year</label>
+                    <select class="form-control" id="fx-rep-year" style="border-color:#0D9488;font-size:12px;"></select>
+                  </div>
+                </div>
+                <button onclick="generateFlexMonthlyPDF()" class="fx-monthly-btn">
+                  📄 Generate Monthly PDF
+                </button>
+              </div>
+            </div>
+            <!-- Daily Report -->
+            <div class="card fx-daily-card">
+              <div class="card-body" style="padding:20px;">
+                <div class="fx-daily-title">Daily Report (PDF)</div>
+                <div class="fx-rep-date-field">
+                  <label class="fx-rep-label-cyan">Select Date</label>
+                  <input class="form-control" type="date" id="fx-rep-date" style="border-color:#0891B2;font-size:12px;">
+                </div>
+                <div class="fx-rep-date-field">
+                  <label class="fx-rep-label-cyan">Or Date Range</label>
+                  <div class="fx-rep-range-row">
+                    <input class="form-control" type="date" id="fx-rep-range-from" style="border-color:#0891B2;font-size:12px;">
+                    <span class="fx-rep-range-sep">to</span>
+                    <input class="form-control" type="date" id="fx-rep-range-to" style="border-color:#0891B2;font-size:12px;">
+                  </div>
+                </div>
+                <button onclick="generateFlexRangePDF()" class="fx-daily-btn">
+                  📋 Generate Range PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
