@@ -1,0 +1,5 @@
+@import url("../FlexModule/flex-module.css");
+
+#page-flex-expenses .fx-exp-form-card {
+  border-radius: 8px;
+}

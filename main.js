@@ -53,6 +53,23 @@ function ensureFinancialTables() {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_accounts_txn_date ON account_transactions(txn_date)`);
 }
 
+function ensureSalePaymentTable() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sale_payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sale_id INTEGER NOT NULL,
+      payment_date TEXT NOT NULL,
+      amount REAL NOT NULL DEFAULT 0,
+      payment_method TEXT DEFAULT 'cash',
+      notes TEXT DEFAULT '',
+      created_at TEXT DEFAULT (datetime('now','localtime')),
+      FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
+    );
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_sale_payments_sale ON sale_payments(sale_id)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_sale_payments_date ON sale_payments(payment_date)`);
+}
+
 // ==================== FLEX TABLES ====================
 function ensureFlexTables() {
   db.exec(`
@@ -223,6 +240,7 @@ function initDatabase() {
   ensureColumn('sales', 'payment_method', `payment_method TEXT DEFAULT 'cash'`);
   ensureColumn('account_transactions', 'bank_name', `bank_name TEXT DEFAULT ''`);
   ensureColumn('product_bills', 'category', `category TEXT DEFAULT ''`);
+  ensureSalePaymentTable();
   ensureFinancialTables();
   ensureDailyKhataTable();
   ensureFlexTables();
@@ -247,6 +265,77 @@ function normalizePaymentMethod(method) {
   const v = String(method || '').trim().toLowerCase();
   if (v === 'jazzcash' || v === 'easypaisa' || v === 'bank_account') return v;
   return 'cash';
+}
+
+function ensureLegacySalePaymentRows(saleId) {
+  ensureSalePaymentTable();
+  const sale = db.prepare(`SELECT id, sale_date, paid_amount, payment_method FROM sales WHERE id=?`).get(saleId);
+  if (!sale) throw new Error('Sale not found.');
+  const existing = db.prepare(`SELECT COUNT(*) as c FROM sale_payments WHERE sale_id=?`).get(saleId).c;
+  const paid = parseFloat(sale.paid_amount) || 0;
+  if (existing === 0 && paid > 0) {
+    db.prepare(`
+      INSERT INTO sale_payments (sale_id, payment_date, amount, payment_method, notes)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(sale.id, sale.sale_date || new Date().toISOString().slice(0, 10), paid, normalizePaymentMethod(sale.payment_method), 'Initial payment');
+  }
+  return sale;
+}
+
+function recalcSalePaymentTotals(saleId) {
+  ensureSalePaymentTable();
+  const sale = db.prepare(`SELECT total_amount FROM sales WHERE id=?`).get(saleId);
+  if (!sale) throw new Error('Sale not found.');
+  const paid = db.prepare(`SELECT COALESCE(SUM(amount),0) as total FROM sale_payments WHERE sale_id=?`).get(saleId).total || 0;
+  const balance = Math.max(0, (parseFloat(sale.total_amount) || 0) - paid);
+  const lastPayment = db.prepare(`
+    SELECT payment_method FROM sale_payments
+    WHERE sale_id=?
+    ORDER BY payment_date DESC, id DESC
+    LIMIT 1
+  `).get(saleId);
+  db.prepare(`UPDATE sales SET paid_amount=?, balance=?, payment_method=? WHERE id=?`)
+    .run(paid, balance, normalizePaymentMethod(lastPayment?.payment_method), saleId);
+  return { paid_amount: paid, balance };
+}
+
+function persistSalePayment(payload = {}) {
+  ensureSalePaymentTable();
+  const saleId = Number(payload.sale_id);
+  if (!saleId) throw new Error('Invalid sale id.');
+  const paymentDate = String(payload.payment_date || '').trim() || new Date().toISOString().slice(0, 10);
+  const amount = parseFloat(payload.amount) || 0;
+  const paymentMethod = normalizePaymentMethod(payload.payment_method);
+  const notes = String(payload.notes || '').trim();
+
+  if (amount <= 0) throw new Error('Payment amount must be greater than zero.');
+
+  return db.transaction(() => {
+    ensureLegacySalePaymentRows(saleId);
+    const sale = db.prepare(`SELECT id, total_amount, paid_amount, balance FROM sales WHERE id=?`).get(saleId);
+    if (!sale) throw new Error('Sale not found.');
+    const balance = Math.max(0, parseFloat(sale.balance) || 0);
+    if (balance <= 0.00001) throw new Error('This bill is already fully paid.');
+    if (amount > balance + 0.00001) throw new Error('Payment amount exceeds remaining balance.');
+
+    const res = db.prepare(`
+      INSERT INTO sale_payments (sale_id,payment_date,amount,payment_method,notes)
+      VALUES (?,?,?,?,?)
+    `).run(saleId, paymentDate, amount, paymentMethod, notes);
+    const totals = recalcSalePaymentTotals(saleId);
+    return { success: true, id: res.lastInsertRowid, ...totals };
+  })();
+}
+
+function querySalePayments(saleId) {
+  const id = Number(saleId);
+  if (!id) return [];
+  ensureLegacySalePaymentRows(id);
+  return db.prepare(`
+    SELECT * FROM sale_payments
+    WHERE sale_id=?
+    ORDER BY payment_date DESC, id DESC
+  `).all(id);
 }
 
 function normalizeKhataTime(timeValue) {
@@ -336,6 +425,7 @@ function saveBankAccounts(list = []) {
 
 function queryAccountPaymentSummary() {
   ensureFinancialTables();
+  ensureSalePaymentTable();
   const rows = db.prepare(`
     SELECT
       payment_method,
@@ -350,11 +440,21 @@ function queryAccountPaymentSummary() {
       UNION ALL
 
       SELECT
+        COALESCE(NULLIF(sp.payment_method, ''), 'cash') as payment_method,
+        'income' as entry_type,
+        sp.amount as amount
+      FROM sale_payments sp
+      WHERE sp.amount > 0
+
+      UNION ALL
+
+      SELECT
         COALESCE(NULLIF(s.payment_method, ''), 'cash') as payment_method,
         'income' as entry_type,
         s.paid_amount as amount
       FROM sales s
       WHERE s.paid_amount > 0
+        AND NOT EXISTS (SELECT 1 FROM sale_payments sp WHERE sp.sale_id = s.id)
 
       UNION ALL
 
@@ -485,6 +585,7 @@ function persistOwnerEntry(payload = {}) {
 
 function queryAccountTransactions({ search = '', dateFrom = '', dateTo = '', entryType = '', paymentMethod = '' } = {}) {
   ensureFinancialTables();
+  ensureSalePaymentTable();
   let where = 'WHERE 1=1';
   const params = [];
   const normalizedMethod = paymentMethod ? normalizePaymentMethod(paymentMethod) : '';
@@ -518,6 +619,25 @@ function queryAccountTransactions({ search = '', dateFrom = '', dateTo = '', ent
       UNION ALL
 
       SELECT
+        sp.id,
+        'sale' as source,
+        sp.payment_date as txn_date,
+        'income' as entry_type,
+        COALESCE(NULLIF(sp.payment_method, ''), 'cash') as payment_method,
+        '' as bank_name,
+        ('Sale ' || s.bill_no) as title,
+        ('Customer: ' || COALESCE(NULLIF(s.customer_name, ''), 'Walk-in')) as description,
+        sp.amount as amount,
+        COALESCE(NULLIF(sp.notes, ''), s.notes, '') as notes,
+        sp.created_at,
+        0 as can_edit
+      FROM sale_payments sp
+      JOIN sales s ON s.id = sp.sale_id
+      WHERE sp.amount > 0
+
+      UNION ALL
+
+      SELECT
         s.id,
         'sale' as source,
         s.sale_date as txn_date,
@@ -532,6 +652,7 @@ function queryAccountTransactions({ search = '', dateFrom = '', dateTo = '', ent
         0 as can_edit
       FROM sales s
       WHERE s.paid_amount > 0
+        AND NOT EXISTS (SELECT 1 FROM sale_payments sp WHERE sp.sale_id = s.id)
 
       UNION ALL
 
@@ -577,6 +698,8 @@ function forceRebindCriticalIpcHandlers() {
   bind('get-owner-ledger', (_, params = {}) => queryOwnerLedger(params));
   bind('save-owner-entry', (_, payload = {}) => persistOwnerEntry(payload));
   bind('get-account-transactions', (_, params = {}) => queryAccountTransactions(params));
+  bind('add-sale-payment', (_, payload = {}) => persistSalePayment(payload));
+  bind('get-sale-payments', (_, saleId) => querySalePayments(saleId));
   bind('add-daily-khata-entry', (_, payload = {}) => {
     try { return ipcMain._addDailyKhataEntryHandler(_, payload); } catch (e) { return null; }
   });
@@ -633,8 +756,9 @@ function forceRebindCriticalIpcHandlers() {
   });
   bind('get-flex-monthly-report', (_, p)    => _flexGetMonthlyReport(p));
   bind('get-flex-clients',        (_)       => _flexGetClients());
+  bind('get-flex-account-transactions', (_, p) => _flexGetAccountTransactions(p));
 
-  console.log('[IPC] Critical handlers bound: get-owner-withdrawals, get-owner-ledger, save-owner-entry, get-account-transactions, daily-khata endpoints, flex module endpoints');
+  console.log('[IPC] Critical handlers bound: owner ledger, accounts, sale payments, daily-khata endpoints, flex module endpoints');
 }
 
 // Safeguard handlers for current data paths to avoid binding issues in older runtime states
@@ -715,6 +839,7 @@ ipcMain.handle('save-settings', (_, s) => {
 });
 
 ipcMain.handle('save-sale', (_, saleData) => {
+  ensureSalePaymentTable();
   const { customer_name, customer_phone, items, discount, paid_amount, payment_method, notes, sale_date } = saleData;
   const subtotal = items.reduce((s, i) => s + i.total_price, 0);
   const disc = parseFloat(discount) || 0;
@@ -726,6 +851,7 @@ ipcMain.handle('save-sale', (_, saleData) => {
 
   const insSale = db.prepare(`INSERT INTO sales (bill_no,customer_name,customer_phone,total_amount,discount,paid_amount,payment_method,balance,notes,sale_date) VALUES (?,?,?,?,?,?,?,?,?,?)`);
   const insItem = db.prepare(`INSERT INTO sale_items (sale_id,category,description,width_inch,height_inch,sq_ft,quantity,unit_price,total_price) VALUES (?,?,?,?,?,?,?,?,?)`);
+  const insPayment = db.prepare(`INSERT INTO sale_payments (sale_id,payment_date,amount,payment_method,notes) VALUES (?,?,?,?,?)`);
 
   const saleId = db.transaction(() => {
     const res = insSale.run(
@@ -744,6 +870,9 @@ ipcMain.handle('save-sale', (_, saleData) => {
     for (const item of items) {
       insItem.run(sid, item.category, item.description || '', item.width_inch || 0, item.height_inch || 0, item.sq_ft || 0, item.quantity || 1, item.unit_price, item.total_price);
     }
+    if (paid > 0) {
+      insPayment.run(sid, sd, paid, normalizePaymentMethod(payment_method), 'Initial payment');
+    }
     return sid;
   })();
 
@@ -751,6 +880,7 @@ ipcMain.handle('save-sale', (_, saleData) => {
 });
 
 ipcMain.handle('update-sale', (_, { id, customer_name, customer_phone, items, discount, paid_amount, payment_method, notes, sale_date }) => {
+  ensureSalePaymentTable();
   const subtotal = items.reduce((s, i) => s + i.total_price, 0);
   const disc = parseFloat(discount) || 0;
   const total = subtotal - disc;
@@ -760,6 +890,8 @@ ipcMain.handle('update-sale', (_, { id, customer_name, customer_phone, items, di
   const updSale = db.prepare(`UPDATE sales SET customer_name=?,customer_phone=?,total_amount=?,discount=?,paid_amount=?,payment_method=?,balance=?,notes=?,sale_date=? WHERE id=?`);
   const delItems = db.prepare('DELETE FROM sale_items WHERE sale_id=?');
   const insItem = db.prepare(`INSERT INTO sale_items (sale_id,category,description,width_inch,height_inch,sq_ft,quantity,unit_price,total_price) VALUES (?,?,?,?,?,?,?,?,?)`);
+  const delPayments = db.prepare('DELETE FROM sale_payments WHERE sale_id=?');
+  const insPayment = db.prepare(`INSERT INTO sale_payments (sale_id,payment_date,amount,payment_method,notes) VALUES (?,?,?,?,?)`);
 
   db.transaction(() => {
     updSale.run(customer_name || '', customer_phone || '', total, disc, paid, normalizePaymentMethod(payment_method), balance, notes || '', sale_date, id);
@@ -767,17 +899,27 @@ ipcMain.handle('update-sale', (_, { id, customer_name, customer_phone, items, di
     for (const item of items) {
       insItem.run(id, item.category, item.description || '', item.width_inch || 0, item.height_inch || 0, item.sq_ft || 0, item.quantity || 1, item.unit_price, item.total_price);
     }
+    delPayments.run(id);
+    if (paid > 0) {
+      insPayment.run(id, sale_date || new Date().toISOString().slice(0, 10), paid, normalizePaymentMethod(payment_method), 'Updated sale payment');
+    }
   })();
 
   return { success: true };
+});
+
+ipcMain.handle('add-sale-payment', (_, payload = {}) => {
+  return persistSalePayment(payload);
+});
+
+ipcMain.handle('get-sale-payments', (_, saleId) => {
+  return querySalePayments(saleId);
 });
 
 ipcMain.handle('get-dashboard-stats', () => {
   ensureDailyKhataTable();
   const todayS = db.prepare(`SELECT COUNT(*) as total_sales, COALESCE(SUM(total_amount),0) as total_revenue, COALESCE(SUM(paid_amount),0) as collected, COALESCE(SUM(balance),0) as pending FROM sales WHERE sale_date = date('now','localtime')`).get();
   const monthS = db.prepare(`SELECT COUNT(*) as total_sales, COALESCE(SUM(total_amount),0) as total_revenue, COALESCE(SUM(paid_amount),0) as collected, COALESCE(SUM(balance),0) as pending FROM sales WHERE strftime('%Y-%m',sale_date) = strftime('%Y-%m','now','localtime')`).get();
-  const todaySq = db.prepare(`SELECT COALESCE(SUM(si.sq_ft*si.quantity),0) as sq_ft FROM sale_items si JOIN sales s ON s.id=si.sale_id WHERE s.sale_date=date('now','localtime')`).get();
-  const monthSq = db.prepare(`SELECT COALESCE(SUM(si.sq_ft*si.quantity),0) as sq_ft FROM sale_items si JOIN sales s ON s.id=si.sale_id WHERE strftime('%Y-%m',s.sale_date)=strftime('%Y-%m','now','localtime')`).get();
   const todayKhata = db.prepare(`SELECT COUNT(*) as total_entries, COALESCE(SUM(amount),0) as total_amount FROM daily_khata_entries WHERE entry_date=date('now','localtime')`).get();
   const monthKhata = db.prepare(`SELECT COUNT(*) as total_entries, COALESCE(SUM(amount),0) as total_amount FROM daily_khata_entries WHERE strftime('%Y-%m',entry_date)=strftime('%Y-%m','now','localtime')`).get();
   const khataDaily = db.prepare(`
@@ -795,8 +937,8 @@ ipcMain.handle('get-dashboard-stats', () => {
   const catBreak = db.prepare(`SELECT si.category, COUNT(*) as cnt, COALESCE(SUM(si.total_price),0) as revenue FROM sale_items si JOIN sales s ON s.id=si.sale_id WHERE strftime('%Y-%m',s.sale_date)=strftime('%Y-%m','now','localtime') GROUP BY si.category`).all();
 
   return {
-    today: { ...todayS, sq_ft: todaySq.sq_ft },
-    month: { ...monthS, sq_ft: monthSq.sq_ft },
+    today: { ...todayS },
+    month: { ...monthS },
     khata: { today: todayKhata, month: monthKhata, daily: khataDaily },
     recentSales, last12, catBreak
   };
@@ -815,10 +957,12 @@ ipcMain.handle('get-sales', (_, { page = 1, limit = 20, search = '', dateFrom = 
 });
 
 ipcMain.handle('get-sale-detail', (_, id) => {
+  ensureSalePaymentTable();
   const sale = db.prepare('SELECT * FROM sales WHERE id=?').get(id);
   if (!sale) return null;
   const items = db.prepare('SELECT * FROM sale_items WHERE sale_id=? ORDER BY id').all(id);
-  return { ...sale, items };
+  const payments = db.prepare('SELECT * FROM sale_payments WHERE sale_id=? ORDER BY payment_date, id').all(id);
+  return { ...sale, items, payments };
 });
 
 ipcMain.handle('delete-sale', (_, id) => {
@@ -1324,12 +1468,44 @@ function _flexGetStats() {
   ensureFlexTables();
   const today = new Date().toISOString().slice(0, 10);
   const ym = today.slice(0, 7);
-  const todayBills  = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(total_amount),0) as rev FROM flex_bills WHERE bill_date=?`).get(today);
-  const monthBills  = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(total_amount),0) as rev, COALESCE(SUM(paid_amount),0) as paid FROM flex_bills WHERE strftime('%Y-%m',bill_date)=?`).get(ym);
+  const todayBills  = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(total_amount),0) as rev, COALESCE(SUM(paid_amount),0) as paid, COALESCE(SUM(balance),0) as pending FROM flex_bills WHERE bill_date=?`).get(today);
+  const monthBills  = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(total_amount),0) as rev, COALESCE(SUM(paid_amount),0) as paid, COALESCE(SUM(balance),0) as pending FROM flex_bills WHERE strftime('%Y-%m',bill_date)=?`).get(ym);
   const outstanding = db.prepare(`SELECT COALESCE(SUM(balance),0) as bal FROM flex_bills WHERE status != 'paid'`).get();
-  const monthExp    = db.prepare(`SELECT COALESCE(SUM(amount),0) as exp FROM flex_expenses WHERE strftime('%Y-%m',expense_date)=?`).get(ym);
+  const todayExp    = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(amount),0) as exp FROM flex_expenses WHERE expense_date=?`).get(today);
+  const monthExp    = db.prepare(`SELECT COUNT(*) as cnt, COALESCE(SUM(amount),0) as exp FROM flex_expenses WHERE strftime('%Y-%m',expense_date)=?`).get(ym);
+  const expenseDaily = db.prepare(`
+    SELECT expense_date, COUNT(*) as total_entries, COALESCE(SUM(amount),0) as total_amount
+    FROM flex_expenses
+    WHERE strftime('%Y-%m',expense_date)=?
+    GROUP BY expense_date
+    ORDER BY expense_date DESC
+  `).all(ym);
   const recentBills = db.prepare(`SELECT * FROM flex_bills ORDER BY bill_date DESC, id DESC LIMIT 8`).all();
-  return { today: { bills: todayBills.cnt, revenue: todayBills.rev }, month: { bills: monthBills.cnt, revenue: monthBills.rev, paid: monthBills.paid }, outstanding: outstanding.bal, monthExpenses: monthExp.exp, recentBills };
+  const last12 = db.prepare(`
+    SELECT strftime('%Y-%m', bill_date) as month, COALESCE(SUM(total_amount),0) as revenue, COUNT(*) as bills
+    FROM flex_bills
+    WHERE bill_date >= date('now','-11 months','start of month','localtime')
+    GROUP BY strftime('%Y-%m', bill_date)
+    ORDER BY month
+  `).all();
+  const workTypes = db.prepare(`
+    SELECT COALESCE(NULLIF(TRIM(description), ''), 'Flex Work') as category, COUNT(*) as cnt, COALESCE(SUM(total_amount),0) as revenue
+    FROM flex_bills
+    WHERE strftime('%Y-%m',bill_date)=?
+    GROUP BY COALESCE(NULLIF(TRIM(description), ''), 'Flex Work')
+    ORDER BY revenue DESC
+    LIMIT 8
+  `).all(ym);
+  return {
+    today: { bills: todayBills.cnt, revenue: todayBills.rev, paid: todayBills.paid, pending: todayBills.pending },
+    month: { bills: monthBills.cnt, revenue: monthBills.rev, paid: monthBills.paid, pending: monthBills.pending },
+    expenses: { today: todayExp, month: monthExp, daily: expenseDaily },
+    outstanding: outstanding.bal,
+    monthExpenses: monthExp.exp,
+    recentBills,
+    last12,
+    workTypes
+  };
 }
 
 function _flexSaveBill(payload = {}) {
@@ -1453,6 +1629,75 @@ function _flexGetMonthlyReport({ year, month, clientName } = {}) {
     : db.prepare(`SELECT COALESCE(SUM(amount),0) as total FROM flex_expenses WHERE strftime('%Y-%m',expense_date)=?`).get(ym).total;
   return { bills, expenses, summary, expTotal, ym, clientName: clientName || null };
 }
+
+function _flexGetAccountTransactions({ search = '', dateFrom = '', dateTo = '', entryType = '', paymentMethod = '' } = {}) {
+  ensureFlexTables();
+  let where = 'WHERE 1=1';
+  const params = [];
+  const normalizedMethod = paymentMethod ? normalizePaymentMethod(paymentMethod) : '';
+
+  if (search) {
+    where += ` AND (title LIKE ? OR description LIKE ? OR notes LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+  }
+  if (dateFrom) { where += ` AND txn_date >= ?`; params.push(dateFrom); }
+  if (dateTo)   { where += ` AND txn_date <= ?`; params.push(dateTo); }
+  if (entryType === 'income' || entryType === 'expense') { where += ` AND entry_type = ?`; params.push(entryType); }
+  if (normalizedMethod) { where += ` AND payment_method = ?`; params.push(normalizedMethod); }
+
+  const rows = db.prepare(`
+    SELECT * FROM (
+      SELECT
+        fp.id,
+        'income' as entry_type,
+        fp.payment_date as txn_date,
+        COALESCE(NULLIF(fp.payment_method, ''), 'cash') as payment_method,
+        ('Flex Payment ' || fb.bill_no) as title,
+        ('Client: ' || COALESCE(NULLIF(fb.client_name, ''), 'Walk-in')) as description,
+        fp.amount,
+        COALESCE(NULLIF(fp.notes, ''), fb.description, '') as notes,
+        fp.created_at
+      FROM flex_payments fp
+      JOIN flex_bills fb ON fb.id = fp.flex_bill_id
+      WHERE fp.amount > 0
+
+      UNION ALL
+
+      SELECT
+        fe.id,
+        'expense' as entry_type,
+        fe.expense_date as txn_date,
+        'cash' as payment_method,
+        fe.description as title,
+        'Flex expense' as description,
+        fe.amount,
+        COALESCE(fe.notes, '') as notes,
+        fe.created_at
+      FROM flex_expenses fe
+      WHERE fe.amount > 0
+    ) tx
+    ${where}
+    ORDER BY txn_date DESC, created_at DESC, id DESC
+  `).all(...params);
+
+  const summary = rows.reduce((acc, r) => {
+    if (r.entry_type === 'income') acc.total_income += parseFloat(r.amount) || 0;
+    else acc.total_expense += parseFloat(r.amount) || 0;
+    return acc;
+  }, { total_income: 0, total_expense: 0 });
+  summary.net_balance = summary.total_income - summary.total_expense;
+  summary.outstanding = db.prepare(`SELECT COALESCE(SUM(balance),0) as total FROM flex_bills WHERE balance > 0`).get().total || 0;
+
+  const methods = { cash: 0, jazzcash: 0, easypaisa: 0, bank_account: 0 };
+  rows.filter(r => r.entry_type === 'income').forEach(r => {
+    const method = normalizePaymentMethod(r.payment_method);
+    methods[method] += parseFloat(r.amount) || 0;
+  });
+
+  return { rows, summary, methods };
+}
+
+ipcMain.handle('get-flex-account-transactions', (_, payload = {}) => _flexGetAccountTransactions(payload));
 
 // ==================== APP LIFECYCLE ====================
 app.whenReady().then(() => {

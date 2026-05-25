@@ -1,0 +1,5 @@
+@import url("../FlexModule/flex-module.css");
+
+#page-flex-bills .fx-bill-form-card {
+  border-radius: 8px;
+}

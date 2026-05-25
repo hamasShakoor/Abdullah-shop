@@ -1,0 +1,10 @@
+@import url("../Dashboard/dashboard.css");
+@import url("../FlexModule/flex-module.css");
+
+#page-flex-dashboard .fx-dashboard-card {
+  border-radius: 8px;
+}
+
+#page-flex-dashboard .stat-card {
+  border-radius: 8px;
+}

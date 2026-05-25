@@ -40,6 +40,55 @@
     </div>
   </div>
 
+  <!-- ===== SALE PAYMENT MODAL ===== -->
+  <div class="modal-overlay" id="sale-payment-modal">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <div>
+          <h3>Add Balance Payment</h3>
+          <div class="sale-pay-modal-info" id="sale-pay-modal-info"></div>
+        </div>
+        <button class="modal-close" onclick="closeSalePaymentModal()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="sale-pay-sale-id">
+        <div class="sale-pay-grid">
+          <div class="form-group">
+            <label>Payment Date</label>
+            <input class="form-control" type="date" id="sale-pay-date">
+          </div>
+          <div class="form-group">
+            <label>Amount (Rs.)</label>
+            <input class="form-control" type="number" id="sale-pay-amount" min="1" step="1" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select class="form-control" id="sale-pay-method">
+            <option value="cash">Cash</option>
+            <option value="jazzcash">JazzCash</option>
+            <option value="easypaisa">Easypaisa</option>
+            <option value="bank_account">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <input class="form-control" id="sale-pay-notes" placeholder="Optional...">
+        </div>
+        <div id="sale-pay-history" class="sale-pay-history"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeSalePaymentModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSalePayment()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Save Payment
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============================== BILL MODAL ============================== -->
   <div class="modal-overlay" id="modal-bill-overlay">
     <div class="modal" style="max-width:780px;">

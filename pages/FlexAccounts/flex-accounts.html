@@ -1,0 +1,68 @@
+<section class="page" id="page-flex-accounts">
+  <div class="fx-account-summary-grid">
+    <div class="fx-account-stat income">
+      <div class="fx-account-label">Total Collected</div>
+      <div class="fx-account-value" id="fx-acc-income">Rs. 0</div>
+    </div>
+    <div class="fx-account-stat expense">
+      <div class="fx-account-label">Total Expenses</div>
+      <div class="fx-account-value" id="fx-acc-expense">Rs. 0</div>
+    </div>
+    <div class="fx-account-stat net">
+      <div class="fx-account-label">Net Balance</div>
+      <div class="fx-account-value" id="fx-acc-net">Rs. 0</div>
+    </div>
+    <div class="fx-account-stat pending">
+      <div class="fx-account-label">Outstanding</div>
+      <div class="fx-account-value" id="fx-acc-outstanding">Rs. 0</div>
+    </div>
+  </div>
+
+  <div class="fx-account-method-grid">
+    <div class="fx-method-pill"><span>Cash</span><strong id="fx-method-cash">Rs. 0</strong></div>
+    <div class="fx-method-pill"><span>JazzCash</span><strong id="fx-method-jazzcash">Rs. 0</strong></div>
+    <div class="fx-method-pill"><span>Easypaisa</span><strong id="fx-method-easypaisa">Rs. 0</strong></div>
+    <div class="fx-method-pill"><span>Bank Transfer</span><strong id="fx-method-bank-account">Rs. 0</strong></div>
+  </div>
+
+  <div class="fx-filter-bar">
+    <span class="fx-filter-label">Filter:</span>
+    <input class="form-control" type="date" id="fx-acc-from" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexAccounts()">
+    <span style="color:#999;font-size:12px;">to</span>
+    <input class="form-control" type="date" id="fx-acc-to" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexAccounts()">
+    <select class="form-control" id="fx-acc-type" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexAccounts()">
+      <option value="">All Types</option>
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+    <select class="form-control" id="fx-acc-method" style="width:150px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexAccounts()">
+      <option value="">All Methods</option>
+      <option value="cash">Cash</option>
+      <option value="jazzcash">JazzCash</option>
+      <option value="easypaisa">Easypaisa</option>
+      <option value="bank_account">Bank Transfer</option>
+    </select>
+    <input class="form-control" id="fx-acc-search" placeholder="Search bill, client, description..." style="width:220px;border-color:#0D9488;font-size:12px;padding:5px 8px;" oninput="loadFlexAccounts()">
+    <button onclick="clearFlexAccountFilters()" class="fx-clear-btn">Clear</button>
+  </div>
+
+  <div class="card fx-accounts-table-card">
+    <div class="table-wrap">
+      <table class="fx-teal-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Method</th>
+            <th class="col-right">Amount</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="fx-accounts-tbody">
+          <tr><td colspan="6" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

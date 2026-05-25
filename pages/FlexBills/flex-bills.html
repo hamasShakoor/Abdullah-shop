@@ -1,0 +1,127 @@
+<section class="page" id="page-flex-bills">
+  <div class="card mb-3 fx-bill-form-card">
+    <div class="fx-bill-form-body">
+      <div class="fx-bill-form-title" id="fx-bill-form-title">New Flex Bill</div>
+      <div class="fx-bill-grid-1">
+        <div>
+          <label class="fx-bill-label">Date</label>
+          <input class="form-control" type="date" id="fx-bill-date" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Client Name *</label>
+          <input class="form-control" id="fx-bill-client" placeholder="Customer name..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Phone</label>
+          <input class="form-control" id="fx-bill-phone" placeholder="03XX-XXXXXXX" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Qty</label>
+          <input class="form-control" type="number" id="fx-bill-qty" min="1" value="1" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+      </div>
+      <div class="fx-bill-grid-2">
+        <div>
+          <label class="fx-bill-label">Description</label>
+          <input class="form-control" id="fx-bill-desc" placeholder="Banner, Standee, Backlit..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Width (ft)</label>
+          <input class="form-control" type="number" id="fx-bill-w" min="0" step="0.1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Height (ft)</label>
+          <input class="form-control" type="number" id="fx-bill-h" min="0" step="0.1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Sq.Ft</label>
+          <input class="form-control" type="number" id="fx-bill-sqft" min="0" step="0.1" placeholder="Auto" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;background:#E6FFFA;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Rate/Sq.Ft (Rs.)</label>
+          <input class="form-control" type="number" id="fx-bill-rate" min="0" step="1" placeholder="0" oninput="calcFlexBillTotal()" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Total Amount (Rs.)</label>
+          <input class="form-control" type="number" id="fx-bill-total" min="0" step="1" placeholder="0" style="border-color:#0D9488;font-size:13px;font-weight:700;padding:6px 8px;background:#E6FFFA;">
+        </div>
+      </div>
+      <div class="fx-bill-grid-3">
+        <div>
+          <label class="fx-bill-label">Paid Amount (Rs.)</label>
+          <input class="form-control" type="number" id="fx-bill-paid" min="0" step="1" placeholder="0" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-bill-label">Payment Method</label>
+          <select class="form-control" id="fx-bill-method" style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+            <option value="cash">Cash</option>
+            <option value="jazzcash">JazzCash</option>
+            <option value="easypaisa">Easypaisa</option>
+            <option value="bank_account">Bank Transfer</option>
+          </select>
+        </div>
+        <div>
+          <label class="fx-bill-label">Notes</label>
+          <input class="form-control" id="fx-bill-notes" placeholder="Optional..." style="border-color:#0D9488;font-size:12px;padding:6px 8px;">
+        </div>
+        <div class="fx-bill-btn-group">
+          <button id="fx-bill-cancel-btn" onclick="cancelFlexBillEdit()" style="display:none;">Cancel</button>
+          <button id="fx-bill-save-btn" onclick="saveFlexBill()">Save Bill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fx-filter-bar">
+    <span class="fx-filter-label">Filter:</span>
+    <input class="form-control" type="date" id="fx-filter-from" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+    <span style="color:#999;font-size:12px;">to</span>
+    <input class="form-control" type="date" id="fx-filter-to" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+    <select class="form-control" id="fx-filter-status" style="width:130px;border-color:#0D9488;font-size:12px;padding:5px 8px;" onchange="loadFlexBills()">
+      <option value="">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="partial">Partial</option>
+      <option value="paid">Paid</option>
+    </select>
+    <input class="form-control" id="fx-filter-search" placeholder="Search client / bill#..." style="width:180px;border-color:#0D9488;font-size:12px;padding:5px 8px;" oninput="loadFlexBills()">
+    <button onclick="clearFlexBillFilters()" class="fx-clear-btn">Clear</button>
+  </div>
+
+  <div class="card fx-bills-table-card">
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="fx-teal-table fx-bills-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Bill #</th>
+            <th>Client</th>
+            <th>Description</th>
+            <th class="col-center">Sq.Ft</th>
+            <th class="col-right">Total</th>
+            <th class="col-right">Paid</th>
+            <th class="col-balance">Balance</th>
+            <th class="col-center">Status</th>
+            <th class="col-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="fx-bills-tbody">
+          <tr><td colspan="10" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fx-bills-footer">
+      <div class="fx-bills-footer-item">
+        <div class="fx-bills-footer-label">Total Bills</div>
+        <div class="fx-bills-footer-value" id="fx-bills-count">0</div>
+      </div>
+      <div class="fx-bills-footer-item">
+        <div class="fx-bills-footer-label">Total Revenue</div>
+        <div class="fx-bills-footer-value" id="fx-bills-revenue">Rs. 0</div>
+      </div>
+      <div class="fx-bills-footer-item">
+        <div class="fx-bills-footer-label fx-bills-footer-label-outstanding" style="color:#D97706;">Outstanding</div>
+        <div class="fx-bills-footer-value outstanding" id="fx-bills-balance">Rs. 0</div>
+      </div>
+    </div>
+  </div>
+</section>

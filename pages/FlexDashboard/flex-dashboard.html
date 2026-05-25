@@ -1,0 +1,168 @@
+<section class="page" id="page-flex-dashboard">
+  <div class="section-header">
+    <div class="section-header-left">
+      <div class="section-title-main">Flex Performance</div>
+      <div class="section-title-sub" id="fx-dash-date-full">Loading...</div>
+    </div>
+    <button class="btn btn-primary" onclick="showPage('flex-bills')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Flex Bill
+    </button>
+  </div>
+
+  <div class="stats-row-label">Today</div>
+  <div class="stats-grid stats-grid-4 mb-5">
+    <div class="stat-card accent-blue">
+      <div class="stat-top">
+        <div><div class="stat-label">Total Bills</div><div class="stat-value" id="fx-td-bills">—</div></div>
+        <div class="stat-icon-wrap blue"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex bills created today</div>
+    </div>
+    <div class="stat-card accent-green">
+      <div class="stat-top">
+        <div><div class="stat-label">Revenue</div><div class="stat-value sm" id="fx-td-rev">—</div></div>
+        <div class="stat-icon-wrap green"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex billed amount</div>
+    </div>
+    <div class="stat-card accent-indigo">
+      <div class="stat-top">
+        <div><div class="stat-label">Collected</div><div class="stat-value sm" id="fx-td-col">—</div></div>
+        <div class="stat-icon-wrap indigo"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex payment received</div>
+    </div>
+    <div class="stat-card accent-red">
+      <div class="stat-top">
+        <div><div class="stat-label">Pending</div><div class="stat-value sm" id="fx-td-pen">—</div></div>
+        <div class="stat-icon-wrap red"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex outstanding today</div>
+    </div>
+  </div>
+
+  <div class="stats-row-label">This Month</div>
+  <div class="stats-grid stats-grid-4 mb-5">
+    <div class="stat-card accent-blue">
+      <div class="stat-top">
+        <div><div class="stat-label">Total Bills</div><div class="stat-value" id="fx-mo-bills">—</div></div>
+        <div class="stat-icon-wrap blue"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      </div>
+    </div>
+    <div class="stat-card accent-green">
+      <div class="stat-top">
+        <div><div class="stat-label">Revenue</div><div class="stat-value sm" id="fx-mo-rev">—</div></div>
+        <div class="stat-icon-wrap green"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      </div>
+    </div>
+    <div class="stat-card accent-indigo">
+      <div class="stat-top">
+        <div><div class="stat-label">Collected</div><div class="stat-value sm" id="fx-mo-col">—</div></div>
+        <div class="stat-icon-wrap indigo"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      </div>
+    </div>
+    <div class="stat-card accent-red">
+      <div class="stat-top">
+        <div><div class="stat-label">Pending</div><div class="stat-value sm" id="fx-mo-pen">—</div></div>
+        <div class="stat-icon-wrap red"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row-label">Flex Expenses</div>
+  <div class="stats-grid stats-grid-4 mb-5">
+    <div class="stat-card accent-yellow">
+      <div class="stat-top">
+        <div><div class="stat-label">Today Expenses</div><div class="stat-value sm" id="fx-td-exp">—</div></div>
+        <div class="stat-icon-wrap yellow"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex cash used today</div>
+    </div>
+    <div class="stat-card accent-blue">
+      <div class="stat-top">
+        <div><div class="stat-label">Today Entries</div><div class="stat-value" id="fx-td-exp-count">—</div></div>
+        <div class="stat-icon-wrap blue"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex expense entries today</div>
+    </div>
+    <div class="stat-card accent-red">
+      <div class="stat-top">
+        <div><div class="stat-label">Month Expenses</div><div class="stat-value sm" id="fx-mo-exp">—</div></div>
+        <div class="stat-icon-wrap red"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+      </div>
+      <div class="stat-footer">Total flex expenses this month</div>
+    </div>
+    <div class="stat-card accent-purple">
+      <div class="stat-top">
+        <div><div class="stat-label">Month Entries</div><div class="stat-value" id="fx-mo-exp-count">—</div></div>
+        <div class="stat-icon-wrap purple"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></div>
+      </div>
+      <div class="stat-footer">Flex entries recorded this month</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div><h3>Flex Revenue — Last 12 Months</h3></div>
+        </div>
+      </div>
+      <div class="card-body chart-card-body">
+        <div id="fx-apex-revenue-chart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div><h3>This Month — Flex Work Types</h3></div>
+        </div>
+      </div>
+      <div class="card-body" id="fx-cat-breakdown">
+        <div class="loading-state"><div class="loading-spinner"></div>Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg></div>
+        <h3>Flex Expenses (Day by Day - Current Month)</h3>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Entries</th><th>Total Expenses</th></tr>
+        </thead>
+        <tbody id="fx-exp-day-body">
+          <tr><td colspan="3" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-header-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Recent Flex Transactions</h3>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('flex-bills')">View All</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Bill #</th><th>Client</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody id="fx-recent-tbody">
+          <tr><td colspan="7" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

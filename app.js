@@ -34,6 +34,7 @@ let accountRowsCache = [];
 let accountsSearchTimer = null;
 let accountPaymentSummary = { cash: 0, jazzcash: 0, easypaisa: 0, bank_account: 0 };
 let accountBankList = [];
+let activeSalePaymentRow = null;
 
 // ==================== INIT ====================
 async function loadProductsCache() {
@@ -55,7 +56,8 @@ async function init() {
   });
   document.getElementById('modal-bill-overlay').addEventListener('click', function(e) { if (e.target === this) closeBillModal(); });
   document.getElementById('modal-confirm-overlay').addEventListener('click', function(e) { if (e.target === this) closeConfirm(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBillModal(); closeConfirm(); } });
+  document.getElementById('sale-payment-modal')?.addEventListener('click', function(e) { if (e.target === this) closeSalePaymentModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBillModal(); closeConfirm(); closeSalePaymentModal(); } });
 
   showPage('profit-loss');
 }
@@ -118,6 +120,11 @@ const pageConfig = {
   accounts:        { title: 'Accounts Center',    subtitle: 'Complete project transactions & payment methods', icon: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
   settings:        { title: 'Settings',           subtitle: 'Shop configuration & preferences',       icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
   'flex-module':   { title: 'Flex Module',         subtitle: 'Flex printing — bills, payments, expenses & reports', icon: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>' },
+  'flex-dashboard': { title: 'Flex Dashboard',      subtitle: 'Flex printing overview and recent bills', icon: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>' },
+  'flex-bills':     { title: 'Flex Bills',          subtitle: 'Create flex bills and collect payments', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/>' },
+  'flex-expenses':  { title: 'Flex Expenses',       subtitle: 'Track flex material, labour, and operating costs', icon: '<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+  'flex-reports':   { title: 'Flex Reports',        subtitle: 'Export flex monthly, daily, and range PDFs', icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' },
+  'flex-accounts':  { title: 'Flex Accounts',       subtitle: 'Flex-only account ledger and payment method totals', icon: '<path d="M3 3h18v18H3z"/><path d="M7 8h10"/><path d="M7 12h6"/><path d="M7 16h8"/>' },
 };
 
 async function showPage(page) {
@@ -164,6 +171,11 @@ async function showPage(page) {
   else if (page === 'accounts') loadAccountsPage();
   else if (page === 'settings') loadSettings();
   else if (page === 'flex-module') loadFlexModule();
+  else if (page === 'flex-dashboard') loadFlexDashboardPage();
+  else if (page === 'flex-bills') loadFlexBillsPage();
+  else if (page === 'flex-expenses') loadFlexExpensesPage();
+  else if (page === 'flex-reports') loadFlexReportsPage();
+  else if (page === 'flex-accounts') loadFlexAccountsPage();
 }
 
 // ==================== DASHBOARD ====================
@@ -176,14 +188,12 @@ async function loadDashboard() {
     document.getElementById('td-rev').textContent = formatCurrency(data.today.total_revenue);
     document.getElementById('td-col').textContent = formatCurrency(data.today.collected);
     document.getElementById('td-pen').textContent = formatCurrency(data.today.pending);
-    document.getElementById('td-sqft').textContent = (data.today.sq_ft || 0).toFixed(1) + ' ft²';
 
     // Month
     document.getElementById('mo-bills').textContent = data.month.total_sales;
     document.getElementById('mo-rev').textContent = formatCurrency(data.month.total_revenue);
     document.getElementById('mo-col').textContent = formatCurrency(data.month.collected);
     document.getElementById('mo-pen').textContent = formatCurrency(data.month.pending);
-    document.getElementById('mo-sqft').textContent = (data.month.sq_ft || 0).toFixed(1) + ' ft²';
 
     // Khata
     const khataToday = data?.khata?.today || {};
@@ -261,11 +271,28 @@ function renderRecentSales(sales) {
       <td>${s.balance > 0 ? '<span class="chip-pending">Pending</span>' : '<span class="chip-paid">Paid</span>'}</td>
       <td class="text-muted">${formatDate(s.sale_date)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="viewBill(${s.id})" title="View Bill">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
+        ${saleTableActionsHTML(s, 14)}
       </td>
     </tr>`).join('');
+}
+
+function saleTableActionsHTML(s, iconSize = 13, includeDelete = false) {
+  const billNo = escAttr(s.bill_no || '');
+  const payBtn = s.balance > 0 ? `
+    <button class="btn btn-primary btn-sm btn-icon" onclick="openSalePaymentModal(${s.id})" title="Add balance payment">
+      <svg width="${iconSize}" height="${iconSize}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>` : '';
+  const delBtn = includeDelete ? `
+    <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDeleteSale(${s.id},'${billNo}')" title="Delete">
+      <svg width="${iconSize}" height="${iconSize}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </button>` : '';
+  return `<div style="display:flex;gap:5px;">
+    ${payBtn}
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="viewBill(${s.id})" title="View Invoice">
+      <svg width="${iconSize}" height="${iconSize}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    ${delBtn}
+  </div>`;
 }
 
 function renderDashboardKhataDaily(rows) {
@@ -1141,14 +1168,7 @@ function renderHistoryTable(data) {
       <td>${s.balance > 0 ? '<span class="chip-pending">Pending</span>' : '<span class="chip-paid">Paid</span>'}</td>
       <td class="text-muted">${formatDate(s.sale_date)}</td>
       <td>
-        <div style="display:flex;gap:5px;">
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="viewBill(${s.id})" title="View Invoice">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-          <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDeleteSale(${s.id},'${s.bill_no}')" title="Delete">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-          </button>
-        </div>
+        ${saleTableActionsHTML(s, 13, true)}
       </td>
     </tr>`).join('');
   renderPagination('history-pagination', data.page, Math.ceil(data.total / data.limit), loadHistory);
@@ -1177,6 +1197,109 @@ function clearHistSearch() {
   document.getElementById('hist-from').value = '';
   document.getElementById('hist-to').value = '';
   loadHistory(1);
+}
+
+// ==================== SALE PAYMENTS ====================
+async function verifySalePaymentApiReady() {
+  if (!window.shopAPI?.addSalePayment || !window.shopAPI?.getSalePayments) {
+    throw new Error('Payment API is not available. Please restart the app.');
+  }
+  try {
+    await window.shopAPI.getSalePayments(0);
+  } catch (e) {
+    const msg = String(e?.message || e);
+    if (msg.includes('No handler registered')) {
+      throw new Error('Payment service is not ready. Please close and reopen the app once.');
+    }
+    throw e;
+  }
+}
+
+async function openSalePaymentModal(saleId) {
+  try {
+    await verifySalePaymentApiReady();
+    const sale = await window.shopAPI.getSaleDetail(saleId);
+    if (!sale) { showToast('Sale record not found!', 'error'); return; }
+    if ((parseFloat(sale.balance) || 0) <= 0) { showToast('This bill is already fully paid.', 'info'); return; }
+    activeSalePaymentRow = sale;
+
+    const modal = document.getElementById('sale-payment-modal');
+    document.getElementById('sale-pay-sale-id').value = sale.id;
+    document.getElementById('sale-pay-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('sale-pay-amount').value = Math.round(sale.balance);
+    document.getElementById('sale-pay-amount').max = Math.round(sale.balance);
+    document.getElementById('sale-pay-method').value = sale.payment_method || 'cash';
+    document.getElementById('sale-pay-notes').value = '';
+    document.getElementById('sale-pay-modal-info').textContent =
+      `${sale.bill_no} | ${sale.customer_name || 'Walk-in'} | Remaining ${formatCurrency(sale.balance)}`;
+    await renderSalePaymentHistory(sale.id);
+    modal.classList.add('open');
+    setTimeout(() => document.getElementById('sale-pay-amount')?.focus(), 50);
+  } catch (e) {
+    showToast('Payment form failed to load: ' + e.message, 'error');
+  }
+}
+
+function closeSalePaymentModal() {
+  document.getElementById('sale-payment-modal')?.classList.remove('open');
+  activeSalePaymentRow = null;
+}
+
+async function renderSalePaymentHistory(saleId) {
+  const el = document.getElementById('sale-pay-history');
+  if (!el) return;
+  try {
+    const payments = await window.shopAPI.getSalePayments(saleId);
+    if (!payments || payments.length === 0) {
+      el.innerHTML = '<div class="sale-pay-history-row"><div class="sale-pay-history-sub">No payment recorded yet.</div></div>';
+      return;
+    }
+    el.innerHTML = payments.map(p => `
+      <div class="sale-pay-history-row">
+        <div>
+          <div class="sale-pay-history-main">${formatDate(p.payment_date)} - ${formatPaymentMethodLabel(p.payment_method)}</div>
+          <div class="sale-pay-history-sub">${escHtml(p.notes || 'Payment received')}</div>
+        </div>
+        <div class="sale-pay-history-amount">${formatCurrency(p.amount)}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="sale-pay-history-row"><div class="sale-pay-history-sub">Payment history could not be loaded. Restart the app if this message stays visible.</div></div>';
+    console.warn('[SalePayment] History load failed:', e);
+  }
+}
+
+async function submitSalePayment() {
+  const saleId = Number(document.getElementById('sale-pay-sale-id')?.value);
+  const amount = parseFloat(document.getElementById('sale-pay-amount')?.value) || 0;
+  const balance = parseFloat(activeSalePaymentRow?.balance) || 0;
+  const payload = {
+    sale_id: saleId,
+    payment_date: document.getElementById('sale-pay-date')?.value,
+    amount,
+    payment_method: document.getElementById('sale-pay-method')?.value || 'cash',
+    notes: document.getElementById('sale-pay-notes')?.value || ''
+  };
+  if (!saleId) { showToast('Sale id missing.', 'error'); return; }
+  if (amount <= 0) { showToast('Enter a valid payment amount.', 'error'); return; }
+  if (balance > 0 && amount > balance + 0.00001) { showToast('Payment cannot be greater than remaining balance.', 'error'); return; }
+
+  try {
+    await window.shopAPI.addSalePayment(payload);
+    showToast('Payment saved and bill balance updated.', 'success');
+    closeSalePaymentModal();
+    refreshSalesViewsAfterPayment();
+  } catch (e) {
+    showToast('Payment failed: ' + e.message, 'error');
+  }
+}
+
+function refreshSalesViewsAfterPayment() {
+  if (currentPage === 'dashboard') loadDashboard();
+  else if (currentPage === 'history') loadHistory(histPage);
+  else if (currentPage === 'reports') loadReport();
+  else if (currentPage === 'daily-reports') loadDailyReport();
+  else if (currentPage === 'accounts') loadAccountsPage();
 }
 
 // ==================== BILL VIEW ====================
@@ -1252,6 +1375,7 @@ function generateBillHTML(sale, shop) {
 
 function _invoiceInnerHTML(sale, shop, forPrint) {
   const items = sale.items || [];
+  const payments = sale.payments || [];
   const subtotal = Math.round(sale.total_amount) + Math.round(sale.discount || 0);
   const shopName = shop.shop_name || 'Abdullah Shop';
   const shopPhone = shop.shop_phone || '';
@@ -1382,13 +1506,19 @@ function _invoiceInnerHTML(sale, shop, forPrint) {
         <span>Previous Bill</span><span style="font-weight:600;">${Math.round(sale.previous_balance || 0).toLocaleString()}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid #E2E8F0;font-size:13px;">
-        <span>Advance</span><span style="font-weight:600;">${Math.round(sale.paid_amount).toLocaleString()}</span>
+        <span>Paid</span><span style="font-weight:600;color:#059669;">${Math.round(sale.paid_amount).toLocaleString()}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:9px 14px;font-size:14px;font-weight:800;background:#1E293B;color:#fff;">
-        <span>Grand Total</span><span>${Math.round((sale.previous_balance || 0) + sale.balance).toLocaleString()}</span>
+        <span>Balance</span><span>${Math.round((sale.previous_balance || 0) + sale.balance).toLocaleString()}</span>
       </div>
     </div>
   </div>
+
+  ${payments.length > 1 ? `
+  <div style="background:#F8FAFC;padding:8px 18px;border-top:1px solid #E2E8F0;font-size:11px;color:#475569;">
+    <strong style="color:#334155;">Payments:</strong>
+    ${payments.map(p => `${formatDate(p.payment_date)} ${Math.round(p.amount || 0).toLocaleString()} (${formatPaymentMethodLabel(p.payment_method)})`).join(' | ')}
+  </div>` : ''}
 
   ${sale.notes ? `<div style="background:#FFF7ED;padding:7px 18px;border-top:1px solid #FED7AA;"><span style="font-size:10.5px;font-weight:700;color:#92400E;">Notes: </span><span style="font-size:12px;color:#78350F;">${sale.notes}</span></div>` : ''}
 
@@ -1554,9 +1684,7 @@ function renderReport(data) {
           <td class="${s.balance > 0 ? 'text-danger font-bold' : 'text-success font-semibold'}">${formatCurrency(s.balance)}</td>
           <td>${s.balance > 0 ? '<span class="chip-pending">Pending</span>' : '<span class="chip-paid">Paid</span>'}</td>
           <td class="text-muted">${formatDate(s.sale_date)}</td>
-          <td><button class="btn btn-ghost btn-sm btn-icon" onclick="viewBill(${s.id})">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button></td>
+          <td>${saleTableActionsHTML(s, 13)}</td>
         </tr>`).join('')}</tbody>
       </table>
     </div>` : '<div class="empty-state" style="padding:32px;"><h4>No sales this month</h4><p>No transactions recorded for ' + monthName + '</p></div>'}`;
@@ -1905,40 +2033,40 @@ async function loadDailyKhata() {
 async function loadDailyLedgerSummary() {
   const dateEl = document.getElementById('khata-date');
   const today = dateEl?.value || new Date().toISOString().slice(0, 10);
-  const kamayaTbody = document.getElementById('summary-kamaya-tbody');
-  const useHogaTbody = document.getElementById('summary-usehoga-tbody');
-  if (!kamayaTbody && !useHogaTbody) return;
+  const earnedTbody = document.getElementById('summary-earned-tbody');
+  const spentTbody = document.getElementById('summary-spent-tbody');
+  if (!earnedTbody && !spentTbody) return;
   try {
-    const [kamayaRows, useHogaRows] = await Promise.all([
+    const [earnedRows, spentRows] = await Promise.all([
       window.shopAPI.getProductBills({ dateFrom: today, dateTo: today }),
       window.shopAPI.getDailyKhataEntries({ dateFrom: today, dateTo: today })
     ]);
-    const totalKamaya = (kamayaRows || []).reduce((s, r) => s + (parseFloat(r.sale_price) || 0), 0);
-    const totalUseHoga = (useHogaRows || []).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
-    const net = totalKamaya - totalUseHoga;
-    if (kamayaTbody) {
-      if (!kamayaRows?.length) {
-        kamayaTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">No entries</td></tr>';
+    const totalEarned = (earnedRows || []).reduce((s, r) => s + (parseFloat(r.sale_price) || 0), 0);
+    const totalSpent = (spentRows || []).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+    const net = totalEarned - totalSpent;
+    if (earnedTbody) {
+      if (!earnedRows?.length) {
+        earnedTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">No entries</td></tr>';
       } else {
-        kamayaTbody.innerHTML = kamayaRows.map((r, i) => `<tr>
+        earnedTbody.innerHTML = earnedRows.map((r, i) => `<tr>
           <td style="padding:5px 8px;border-bottom:1px solid #f0fdf4;font-size:12px;">${i+1}. ${escHtml(r.product_name || '—')}</td>
           <td style="padding:5px 8px;border-bottom:1px solid #f0fdf4;text-align:right;font-weight:600;color:#059669;font-size:12px;">Rs. ${Math.round(parseFloat(r.sale_price)||0).toLocaleString('en-PK')}</td>
         </tr>`).join('');
       }
-      const ktEl = document.getElementById('summary-kamaya-total');
-      if (ktEl) ktEl.textContent = `Rs. ${Math.round(totalKamaya).toLocaleString('en-PK')}`;
+      const earnedTotalEl = document.getElementById('summary-earned-total');
+      if (earnedTotalEl) earnedTotalEl.textContent = `Rs. ${Math.round(totalEarned).toLocaleString('en-PK')}`;
     }
-    if (useHogaTbody) {
-      if (!useHogaRows?.length) {
-        useHogaTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">No entries</td></tr>';
+    if (spentTbody) {
+      if (!spentRows?.length) {
+        spentTbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#bbb;padding:10px;font-size:11px;">No entries</td></tr>';
       } else {
-        useHogaTbody.innerHTML = useHogaRows.map((r, i) => `<tr>
+        spentTbody.innerHTML = spentRows.map((r, i) => `<tr>
           <td style="padding:5px 8px;border-bottom:1px solid #fef2f2;font-size:12px;">${i+1}. ${escHtml(r.item_name || '—')}</td>
           <td style="padding:5px 8px;border-bottom:1px solid #fef2f2;text-align:right;font-weight:600;color:#DC2626;font-size:12px;">Rs. ${Math.round(parseFloat(r.amount)||0).toLocaleString('en-PK')}</td>
         </tr>`).join('');
       }
-      const utEl = document.getElementById('summary-usehoga-total');
-      if (utEl) utEl.textContent = `Rs. ${Math.round(totalUseHoga).toLocaleString('en-PK')}`;
+      const spentTotalEl = document.getElementById('summary-spent-total');
+      if (spentTotalEl) spentTotalEl.textContent = `Rs. ${Math.round(totalSpent).toLocaleString('en-PK')}`;
     }
     const netEl = document.getElementById('summary-net-total');
     if (netEl) {
@@ -1947,7 +2075,7 @@ async function loadDailyLedgerSummary() {
     }
     const formulaEl = document.getElementById('summary-net-formula');
     if (formulaEl) {
-      formulaEl.innerHTML = `<span style="color:${net>=0?'#059669':'#DC2626'};font-weight:700;">${net >= 0 ? 'Faida' : 'Nuqsan'}</span><br>Rs. ${Math.round(totalKamaya).toLocaleString('en-PK')} − Rs. ${Math.round(totalUseHoga).toLocaleString('en-PK')}`;
+      formulaEl.innerHTML = `<span style="color:${net>=0?'#059669':'#DC2626'};font-weight:700;">${net >= 0 ? 'Profit' : 'Loss'}</span><br>Rs. ${Math.round(totalEarned).toLocaleString('en-PK')} − Rs. ${Math.round(totalSpent).toLocaleString('en-PK')}`;
     }
     const d = new Date(today);
     const dateLabel = document.getElementById('summary-date-label');
@@ -2338,9 +2466,7 @@ function renderDailyReport(data) {
           <td class="text-success font-semibold">${formatCurrency(s.paid_amount)}</td>
           <td class="${s.balance > 0 ? 'text-danger font-bold' : 'text-success font-semibold'}">${formatCurrency(s.balance)}</td>
           <td>${s.balance > 0 ? '<span class="chip-pending">Pending</span>' : '<span class="chip-paid">Paid</span>'}</td>
-          <td><button class="btn btn-ghost btn-sm btn-icon" onclick="viewBill(${s.id})">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button></td>
+          <td>${saleTableActionsHTML(s, 13)}</td>
         </tr>`).join('')}</tbody>
       </table>
     </div>` : '<div class="empty-state" style="padding:32px;"><h4>No Sales Found</h4><p>No transactions were recorded for this day</p></div>'}`;
@@ -3248,6 +3374,9 @@ function getCategoryColor(cat) {
 function escHtml(s) {
   return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+function escAttr(s) {
+  return escHtml(String(s || '')).replace(/'/g, '&#39;');
+}
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
@@ -3282,26 +3411,26 @@ function showToast(message, type = 'info') {
 }
 
 // ===== DAILY EXPENSES PDF — shared helper =====
-function _getDailyExpensesPDFHtml(dateStr, kamayaRows, useHogaRows) {
-  const totalKamaya = (kamayaRows || []).reduce((s, r) => s + (parseFloat(r.sale_price) || 0), 0);
-  const totalUseHoga = (useHogaRows || []).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
-  const net = totalKamaya - totalUseHoga;
+function _getDailyExpensesPDFHtml(dateStr, earnedRows, spentRows) {
+  const totalEarned = (earnedRows || []).reduce((s, r) => s + (parseFloat(r.sale_price) || 0), 0);
+  const totalSpent = (spentRows || []).reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+  const net = totalEarned - totalSpent;
   const d = new Date(dateStr + 'T12:00:00');
   const dateLabel = d.toLocaleDateString('en-PK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const netColor = net >= 0 ? '#059669' : '#DC2626';
   const netLabel = net >= 0 ? 'Profit' : 'Loss';
 
-  const kamayaRows_html = !kamayaRows?.length
+  const earnedRowsHtml = !earnedRows?.length
     ? '<tr><td colspan="3" style="text-align:center;padding:10px;color:#999;">No entries</td></tr>'
-    : kamayaRows.map((r, i) => `<tr style="border-bottom:1px solid #e7f5ee;">
+    : earnedRows.map((r, i) => `<tr style="border-bottom:1px solid #e7f5ee;">
         <td style="padding:7px 10px;border:1px solid #d1fae5;">${i+1}</td>
         <td style="padding:7px 10px;border:1px solid #d1fae5;">${r.product_name || '—'}</td>
         <td style="padding:7px 10px;border:1px solid #d1fae5;text-align:right;font-weight:600;">Rs. ${Math.round(parseFloat(r.sale_price)||0).toLocaleString('en-PK')}</td>
       </tr>`).join('');
 
-  const useHogaRows_html = !useHogaRows?.length
+  const spentRowsHtml = !spentRows?.length
     ? '<tr><td colspan="3" style="text-align:center;padding:10px;color:#999;">No entries</td></tr>'
-    : useHogaRows.map((r, i) => `<tr style="border-bottom:1px solid #fee2e2;">
+    : spentRows.map((r, i) => `<tr style="border-bottom:1px solid #fee2e2;">
         <td style="padding:7px 10px;border:1px solid #fecaca;">${i+1}</td>
         <td style="padding:7px 10px;border:1px solid #fecaca;">${r.item_name || '—'}</td>
         <td style="padding:7px 10px;border:1px solid #fecaca;text-align:right;font-weight:600;">Rs. ${Math.round(parseFloat(r.amount)||0).toLocaleString('en-PK')}</td>
@@ -3334,10 +3463,10 @@ function _getDailyExpensesPDFHtml(dateStr, kamayaRows, useHogaRows) {
             <th style="border:1px solid #d1fae5;">Product / Item</th>
             <th style="border:1px solid #d1fae5;text-align:right;">Amount</th>
           </tr></thead>
-          <tbody>${kamayaRows_html}</tbody>
+          <tbody>${earnedRowsHtml}</tbody>
           <tfoot><tr class="total-row" style="background:#f0fdf4;border-top:2px solid #059669;">
             <td colspan="2" style="text-align:right;border:1px solid #d1fae5;color:#059669;">Total Earned:</td>
-            <td style="text-align:right;border:1px solid #d1fae5;color:#059669;font-size:14px;">Rs. ${Math.round(totalKamaya).toLocaleString('en-PK')}</td>
+            <td style="text-align:right;border:1px solid #d1fae5;color:#059669;font-size:14px;">Rs. ${Math.round(totalEarned).toLocaleString('en-PK')}</td>
           </tr></tfoot>
         </table>
       </div>
@@ -3349,10 +3478,10 @@ function _getDailyExpensesPDFHtml(dateStr, kamayaRows, useHogaRows) {
             <th style="border:1px solid #fecaca;">Item / Name</th>
             <th style="border:1px solid #fecaca;text-align:right;">Amount</th>
           </tr></thead>
-          <tbody>${useHogaRows_html}</tbody>
+          <tbody>${spentRowsHtml}</tbody>
           <tfoot><tr class="total-row" style="background:#fef2f2;border-top:2px solid #DC2626;">
             <td colspan="2" style="text-align:right;border:1px solid #fecaca;color:#DC2626;">Total Spent:</td>
-            <td style="text-align:right;border:1px solid #fecaca;color:#DC2626;font-size:14px;">Rs. ${Math.round(totalUseHoga).toLocaleString('en-PK')}</td>
+            <td style="text-align:right;border:1px solid #fecaca;color:#DC2626;font-size:14px;">Rs. ${Math.round(totalSpent).toLocaleString('en-PK')}</td>
           </tr></tfoot>
         </table>
       </div>
@@ -3360,17 +3489,17 @@ function _getDailyExpensesPDFHtml(dateStr, kamayaRows, useHogaRows) {
     <div class="net-box">
       <div class="net-label">${netLabel}</div>
       <div class="net-val">Rs. ${Math.round(Math.abs(net)).toLocaleString('en-PK')}</div>
-      <div class="net-formula">Earned Rs. ${Math.round(totalKamaya).toLocaleString('en-PK')} − Spent Rs. ${Math.round(totalUseHoga).toLocaleString('en-PK')}</div>
+      <div class="net-formula">Earned Rs. ${Math.round(totalEarned).toLocaleString('en-PK')} − Spent Rs. ${Math.round(totalSpent).toLocaleString('en-PK')}</div>
     </div>
   </body></html>`;
 }
 
 async function _saveDailyExpensesPDF(dateStr) {
-  const [kamayaRows, useHogaRows] = await Promise.all([
+  const [earnedRows, spentRows] = await Promise.all([
     window.shopAPI.getProductBills({ dateFrom: dateStr, dateTo: dateStr }),
     window.shopAPI.getDailyKhataEntries({ dateFrom: dateStr, dateTo: dateStr })
   ]);
-  const html = _getDailyExpensesPDFHtml(dateStr, kamayaRows, useHogaRows);
+  const html = _getDailyExpensesPDFHtml(dateStr, earnedRows, spentRows);
   const result = await window.shopAPI.savePDF({
     htmlContent: html,
     filename: `DailyExpenses_${dateStr}.pdf`,

@@ -1,0 +1,5 @@
+@import url("../FlexModule/flex-module.css");
+
+#page-flex-reports .fx-reports-grid {
+  align-items: start;
+}

@@ -1,0 +1,47 @@
+<section class="page" id="page-flex-reports">
+  <div class="fx-reports-grid">
+    <div class="card fx-monthly-card">
+      <div class="card-body" style="padding:20px;">
+        <div class="fx-monthly-title">Monthly Report (PDF)</div>
+        <div class="fx-rep-grid">
+          <div>
+            <label class="fx-rep-label-teal">Month</label>
+            <select class="form-control" id="fx-rep-month" style="border-color:#0D9488;font-size:12px;">
+              <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+              <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+              <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+              <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div>
+            <label class="fx-rep-label-teal">Client</label>
+            <select class="form-control" id="fx-rep-client" style="border-color:#0D9488;font-size:12px;"></select>
+          </div>
+          <div>
+            <label class="fx-rep-label-teal">Year</label>
+            <select class="form-control" id="fx-rep-year" style="border-color:#0D9488;font-size:12px;"></select>
+          </div>
+        </div>
+        <button onclick="generateFlexMonthlyPDF()" class="fx-monthly-btn">Generate Monthly PDF</button>
+      </div>
+    </div>
+    <div class="card fx-daily-card">
+      <div class="card-body" style="padding:20px;">
+        <div class="fx-daily-title">Daily / Range Report (PDF)</div>
+        <div class="fx-rep-date-field">
+          <label class="fx-rep-label-cyan">Select Date</label>
+          <input class="form-control" type="date" id="fx-rep-date" style="border-color:#0891B2;font-size:12px;">
+        </div>
+        <div class="fx-rep-date-field">
+          <label class="fx-rep-label-cyan">Or Date Range</label>
+          <div class="fx-rep-range-row">
+            <input class="form-control" type="date" id="fx-rep-range-from" style="border-color:#0891B2;font-size:12px;">
+            <span class="fx-rep-range-sep">to</span>
+            <input class="form-control" type="date" id="fx-rep-range-to" style="border-color:#0891B2;font-size:12px;">
+          </div>
+        </div>
+        <button onclick="generateFlexRangePDF()" class="fx-daily-btn">Generate Range PDF</button>
+      </div>
+    </div>
+  </div>
+</section>

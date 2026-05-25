@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('shopAPI', {
   saveSettings:       (s)      => ipcRenderer.invoke('save-settings', s),
   saveSale:           (d)      => ipcRenderer.invoke('save-sale', d),
   updateSale:         (d)      => ipcRenderer.invoke('update-sale', d),
+  addSalePayment:     (d)      => ipcRenderer.invoke('add-sale-payment', d),
+  getSalePayments:    (id)     => ipcRenderer.invoke('get-sale-payments', id),
   getDashboardStats:  ()       => ipcRenderer.invoke('get-dashboard-stats'),
   getSales:           (p)      => ipcRenderer.invoke('get-sales', p),
   getSaleDetail:      (id)     => ipcRenderer.invoke('get-sale-detail', id),
@@ -53,4 +55,5 @@ contextBridge.exposeInMainWorld('shopAPI', {
   deleteFlexExpense:     (id)  => ipcRenderer.invoke('delete-flex-expense', id),
   getFlexMonthlyReport:  (p)   => ipcRenderer.invoke('get-flex-monthly-report', p),
   getFlexClients:        ()    => ipcRenderer.invoke('get-flex-clients'),
+  getFlexAccountTransactions: (p) => ipcRenderer.invoke('get-flex-account-transactions', p),
 });

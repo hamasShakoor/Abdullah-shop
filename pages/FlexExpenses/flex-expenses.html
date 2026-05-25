@@ -1,0 +1,55 @@
+<section class="page" id="page-flex-expenses">
+  <div class="card mb-3 fx-exp-form-card">
+    <div class="fx-exp-form-body">
+      <div class="fx-exp-form-title">Add Flex Expense</div>
+      <div class="fx-exp-form-grid">
+        <div>
+          <label class="fx-exp-label">Date</label>
+          <input class="form-control" type="date" id="fx-exp-date" style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-exp-label">Description *</label>
+          <input class="form-control" id="fx-exp-desc" placeholder="e.g. Flex material, Ink, Labour..." style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-exp-label">Amount (Rs.) *</label>
+          <input class="form-control" type="number" id="fx-exp-amount" min="0" step="1" placeholder="0" style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+        </div>
+        <div>
+          <label class="fx-exp-label">Notes</label>
+          <input class="form-control" id="fx-exp-notes" placeholder="Optional..." style="border-color:#DC2626;font-size:12px;padding:6px 8px;">
+        </div>
+        <button onclick="saveFlexExpense()" class="fx-exp-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+  <div class="fx-exp-filter-bar">
+    <span class="fx-exp-filter-label">Filter:</span>
+    <input class="form-control" type="date" id="fx-exp-from" style="width:130px;border-color:#DC2626;font-size:12px;padding:5px 8px;" onchange="loadFlexExpenses()">
+    <span style="color:#999;font-size:12px;">to</span>
+    <input class="form-control" type="date" id="fx-exp-to" style="width:130px;border-color:#DC2626;font-size:12px;padding:5px 8px;" onchange="loadFlexExpenses()">
+    <button onclick="document.getElementById('fx-exp-from').value='';document.getElementById('fx-exp-to').value='';loadFlexExpenses();" class="fx-clear-btn">Clear</button>
+  </div>
+  <div class="card fx-exp-table-card">
+    <div class="table-wrap">
+      <table class="fx-exp-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th class="col-right">Amount</th>
+            <th>Notes</th>
+            <th class="col-center">Delete</th>
+          </tr>
+        </thead>
+        <tbody id="fx-expenses-tbody">
+          <tr><td colspan="5" class="loading-state"><div class="loading-spinner"></div>Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fx-exp-table-footer">
+      <span class="fx-exp-footer-label">Total Expenses</span>
+      <span class="fx-exp-footer-value" id="fx-exp-total">Rs. 0</span>
+    </div>
+  </div>
+</section>

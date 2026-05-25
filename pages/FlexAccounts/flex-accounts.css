@@ -1,0 +1,38 @@
+@import url("../FlexModule/flex-module.css");
+
+.fx-account-summary-grid,
+.fx-account-method-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.fx-account-summary-grid { grid-template-columns: repeat(4, 1fr); }
+.fx-account-method-grid { grid-template-columns: repeat(4, 1fr); }
+.fx-account-stat,
+.fx-method-pill {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px;
+}
+.fx-account-stat.income { border-left: 4px solid #059669; }
+.fx-account-stat.expense { border-left: 4px solid #DC2626; }
+.fx-account-stat.net { border-left: 4px solid #0D9488; }
+.fx-account-stat.pending { border-left: 4px solid #D97706; }
+.fx-account-label,
+.fx-method-pill span {
+  display: block;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.fx-account-value,
+.fx-method-pill strong {
+  color: #111827;
+  font-size: 18px;
+}
+.fx-accounts-table-card {
+  border-top: 3px solid #0D9488;
+}
